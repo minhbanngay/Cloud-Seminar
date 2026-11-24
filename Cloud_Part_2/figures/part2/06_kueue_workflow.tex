@@ -1,0 +1,12 @@
+% Kueue v0.14.0, existing capacity, no Provisioning AdmissionCheck in this flow.
+\begin{tikzpicture}[x=1cm,y=1cm]
+ \node[pTwo/box,text width=5.3cm,minimum height=.95cm] (admin) at (3.05,4.1) {Topology $\leftarrow$ ResourceFlavor\\Admin: queues + quota};
+ \node[pTwo/box,text width=5.3cm,minimum height=.95cm] (user) at (10.75,4.1) {User: Job + annotation\\PodTemplate $\rightarrow$ PodSet};
+ \node[pTwo/box,text width=11.7cm,minimum height=.9cm] (admit) at (6.9,2.62) {Kueue: kiểm tra quota + topology capacity\\Admission + topology assignment cho PodSet};
+ \draw[pTwo/arrow] (admin.south) -- (3.05,3.2);
+ \draw[pTwo/arrow] (user.south) -- (10.75,3.2);
+ \node[pTwo/box,text width=11.7cm,minimum height=.85cm] (pod) at (6.9,1.22) {Controllers: tạo Pods; áp node selectors theo assignment\\Kueue TAS controller gỡ topology scheduling gate};
+ \draw[pTwo/arrow] (admit) -- (pod);
+ \node[pTwo/box,text width=11.7cm,minimum height=.6cm] (sched) at (6.9,-.02) {kube-scheduler: Filter / Score $\rightarrow$ Bind Pod vào Node phù hợp};
+ \draw[pTwo/arrow] (pod) -- (sched);
+\end{tikzpicture}

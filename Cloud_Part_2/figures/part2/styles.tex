@@ -1,0 +1,20 @@
+% All diagram styles are local to the group opened by part2_topology.tex.
+% TikZ styles for the remaining author-created explanatory diagrams.
+% Official source images are included directly by part2_topology.tex.
+\tikzset{
+ pTwo/base/.style={font=\small,align=center,inner sep=4pt},
+ pTwo/box/.style={pTwo/base,draw=BKTemplate,fill=BKTemplate!7,line width=.7pt},
+ pTwo/gpu/.style={pTwo/box,minimum width=1.05cm,minimum height=.58cm},
+ pTwo/domain/.style={pTwo/base,draw=BKTemplate!65,fill=white,line width=.6pt},
+ pTwo/arrow/.style={-{Stealth[length=2mm]},draw=BKTemplate,line width=.9pt},
+ pTwo/link/.style={draw=BKTemplate,line width=1.1pt},
+ pTwo/remote/.style={draw=orange!80!black,line width=1.1pt,dashed},
+ pTwo/selected/.style={pTwo/gpu,fill=BKTemplate,text=white},
+ pTwo/empty/.style={pTwo/gpu,draw=gray!65,fill=gray!8,text=gray!75!black},
+ pTwo/label/.style={font=\small,align=center,text=BKTemplate},
+ pTwo/note/.style={font=\small,align=center}
+}
+\newcommand{\PtwoSource}[1]{%
+ \par\vspace{.08cm}{\fontsize{8.5}{10}\selectfont\color{BKTemplate}Nguồn: #1\par}}
+\newcommand{\PtwoPoint}[1]{%
+ \begin{block}{}\centering #1\end{block}}

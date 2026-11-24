@@ -1,0 +1,179 @@
+﻿{
+    "value":  [
+                  {
+                      "url":  "https://storage.googleapis.com/cloud-training/T-PSML-O/on-demand/T-PSML-O_M3_Designing_High-performance_ML_systems.pdf",
+                      "kind":  "original",
+                      "retrieved_on":  "2026-11-23",
+                      "page":  "https://storage.googleapis.com/cloud-training/T-PSML-O/on-demand/T-PSML-O_M3_Designing_High-performance_ML_systems.pdf",
+                      "publisher":  "Google Cloud",
+                      "file":  "google_cloud_training_systems.pdf",
+                      "sha256":  "DE7585BE7304F2C8DE88723274515088B96CD7D45B5EA65F0A3601E959F7C204",
+                      "bytes":  5753055,
+                      "used_on_slides":  [
+
+                                         ],
+                      "retained_locally":  false
+                  },
+                  {
+                      "url":  "https://storage.googleapis.com/cloud-training/T-PSML-O/on-demand/T-PSML-O_M3_Designing_High-performance_ML_systems.pdf",
+                      "kind":  "page 57 extracted without content changes using pdfseparate",
+                      "retrieved_on":  "2026-11-23",
+                      "page":  "https://storage.googleapis.com/cloud-training/T-PSML-O/on-demand/T-PSML-O_M3_Designing_High-performance_ML_systems.pdf#page=57",
+                      "publisher":  "Google Cloud",
+                      "file":  "google_parallelism_page_57.pdf",
+                      "sha256":  "871CF73F4D48BDEAFAEEDF2D77DDDF3A9E93A9832FD541E1A5B91E78BC1CF599",
+                      "bytes":  64611,
+                      "used_on_slides":  [
+                                             1
+                                         ],
+                      "retained_locally":  true
+                  },
+                  {
+                      "url":  "https://storage.googleapis.com/gweb-cloudblog-publish/images/Screen_Shot_2021-08-23_at_2.25.47_PM.max-700x700.png",
+                      "kind":  "original",
+                      "retrieved_on":  "2026-11-23",
+                      "page":  "https://cloud.google.com/blog/topics/developers-practitioners/optimize-training-performance-reduction-server-vertex-ai",
+                      "publisher":  "Google Cloud",
+                      "file":  "google_cloud_data_parallelism.png",
+                      "sha256":  "771BD226943A6FF21861E5E6326FBDFC9A9A8D419CEED14AB037866D2BA3018E",
+                      "bytes":  48822,
+                      "used_on_slides":  [
+                                             2
+                                         ],
+                      "retained_locally":  true
+                  },
+                  {
+                      "url":  "https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/_images/allreduce.png",
+                      "kind":  "original",
+                      "retrieved_on":  "2026-11-23",
+                      "page":  "https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/collectives.html#allreduce",
+                      "publisher":  "NVIDIA",
+                      "file":  "nvidia_nccl_allreduce.png",
+                      "sha256":  "56BA8399A2D0AE820A989CC1130D37264C5923D36F8852F5EEB057919537A675",
+                      "bytes":  20420,
+                      "used_on_slides":  [
+                                             3
+                                         ],
+                      "retained_locally":  true
+                  },
+                  {
+                      "url":  "https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/_images/allgather.png",
+                      "kind":  "original",
+                      "retrieved_on":  "2026-11-23",
+                      "page":  "https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/collectives.html#allgather",
+                      "publisher":  "NVIDIA",
+                      "file":  "nvidia_nccl_allgather.png",
+                      "sha256":  "93B7BF717381477043BC7B8DC34D76C519EB71339AF2B67401F37AC1EF0E8C81",
+                      "bytes":  23453,
+                      "used_on_slides":  [
+                                             4
+                                         ],
+                      "retained_locally":  true
+                  },
+                  {
+                      "url":  "https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/_images/reducescatter.png",
+                      "kind":  "original",
+                      "retrieved_on":  "2026-11-23",
+                      "page":  "https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/collectives.html#reducescatter",
+                      "publisher":  "NVIDIA",
+                      "file":  "nvidia_nccl_reducescatter.png",
+                      "sha256":  "1A8A69EEC2115D501CB724AC41197AB4D33CB997F1F0BA24E38F079B1D1689B4",
+                      "bytes":  26445,
+                      "used_on_slides":  [
+                                             4
+                                         ],
+                      "retained_locally":  true
+                  },
+                  {
+                      "url":  "https://developer-blogs.nvidia.com/wp-content/uploads/2021/03/Pipeline_MP-1-625x172.png",
+                      "kind":  "original image linked by article, Figure 2",
+                      "retrieved_on":  "2026-11-23",
+                      "page":  "https://developer.nvidia.com/blog/scaling-language-model-training-to-a-trillion-parameters-using-megatron/",
+                      "publisher":  "NVIDIA",
+                      "file":  "nvidia_model_parallelism.png",
+                      "sha256":  "3605A5E9B9086FC868A91A56A031686FC241441C7649438ACC93B33D185A164F",
+                      "bytes":  82429,
+                      "used_on_slides":  [
+
+                                         ],
+                      "retained_locally":  false
+                  },
+                  {
+                      "url":  "https://docs.nvidia.com/dgx/dgxh100-user-guide/_images/dgx-h100-system-topology.png",
+                      "kind":  "original",
+                      "retrieved_on":  "2026-11-23",
+                      "page":  "https://docs.nvidia.com/dgx/dgxh100-user-guide/introduction-to-dgxh100.html#dgx-h100-200-system-topology",
+                      "publisher":  "NVIDIA",
+                      "file":  "nvidia_dgx_h100_topology.png",
+                      "sha256":  "EE022685AF1F61FD2617BBDFC3B0ACC7C6685D72072C852FCA785BFCFC869D3F",
+                      "bytes":  2733952,
+                      "used_on_slides":  [
+
+                                         ],
+                      "retained_locally":  true
+                  },
+                  {
+                      "url":  "https://kueue.sigs.k8s.io/images/theory-of-operation.svg",
+                      "kind":  "original generic overview, not TAS-specific",
+                      "retrieved_on":  "2026-11-23",
+                      "page":  "https://kueue.sigs.k8s.io/docs/overview/#high-level-kueue-operation",
+                      "publisher":  "Kueue",
+                      "file":  "kueue_theory_of_operation.svg",
+                      "sha256":  "73B5E81C2A949324FE03946C8ED14ECC6C24E4A7B832EC09FC89D1E52C0421B1",
+                      "bytes":  298196,
+                      "used_on_slides":  [
+
+                                         ],
+                      "retained_locally":  true
+                  },
+                  {
+                      "file":  "google_gpu_network_architecture.png",
+                      "page":  "https://docs.cloud.google.com/ai-hypercomputer/docs/networking-overview",
+                      "url":  "https://docs.cloud.google.com/static/ai-hypercomputer/images/network-architecture.png",
+                      "kind":  "original",
+                      "publisher":  "Google Cloud",
+                      "retrieved_on":  "2026-11-23",
+                      "sha256":  "27594D0B3DAB9A50E65E8D223F57A86DB22E03E079AB19EC484A0B8343B5FB8A",
+                      "bytes":  56177,
+                      "used_on_slides":  [
+                                             8
+                                         ],
+                      "retained_locally":  true
+                  },
+                  {
+                      "file":  "nvidia_dgx_gpu_nvswitch_detail.png",
+                      "page":  "https://docs.nvidia.com/dgx/dgxh100-user-guide/introduction-to-dgxh100.html#dgx-h100-200-system-topology",
+                      "url":  "https://docs.nvidia.com/dgx/dgxh100-user-guide/_images/dgx-h100-system-topology.png",
+                      "kind":  "pixel-preserving crop from nvidia_dgx_h100_topology.png",
+                      "crop":  {
+                                   "y":  2650,
+                                   "width":  8100,
+                                   "height":  2500,
+                                   "x":  1800
+                               },
+                      "publisher":  "NVIDIA",
+                      "retrieved_on":  "2026-11-23",
+                      "sha256":  "7C8E55136CDBDDF99EED6F0B4F2EA5B427A638E6793D5E4638E4F91EFD3CE403",
+                      "bytes":  2528795,
+                      "used_on_slides":  [
+                                             7
+                                         ],
+                      "retained_locally":  true
+                  },
+                  {
+                      "file":  "kueue_theory_of_operation.pdf",
+                      "page":  "https://kueue.sigs.k8s.io/docs/overview/#high-level-kueue-operation",
+                      "url":  "https://kueue.sigs.k8s.io/images/theory-of-operation.svg",
+                      "kind":  "original SVG rendered to PDF with matching page size via Chrome headless",
+                      "publisher":  "Kueue",
+                      "retrieved_on":  "2026-11-23",
+                      "sha256":  "8B141FA7BE0261086E4CFDE5CCCFF5023EBC4A812326D764C98684BEFC4710A6",
+                      "bytes":  280250,
+                      "used_on_slides":  [
+                                             12
+                                         ],
+                      "retained_locally":  true
+                  }
+              ],
+    "Count":  12
+}

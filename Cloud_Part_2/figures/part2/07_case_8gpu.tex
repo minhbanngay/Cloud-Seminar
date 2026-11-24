@@ -1,0 +1,30 @@
+% Same capacity snapshot in both panels: four nodes, four free GPUs each.
+% Filled positions = job's workers, outlined positions = unused GPUs.
+\begin{tikzpicture}[x=1cm,y=1cm]
+ \foreach \base/\title in {0/{Topology-Aware: 1 rack},7.05/{Topology-Unaware: 2 racks}}{
+  \node[pTwo/label,font=\small\bfseries] at (\base+3.25,3.35) {\title};
+  \foreach \offset/\rack in {.1/A,3.55/B}{
+   \draw[pTwo/domain] (\base+\offset,.4) rectangle ++(2.85,2.5);
+   \node[pTwo/label] at (\base+\offset+1.425,2.62) {Rack \rack};
+   \foreach \row/\idx in {1.95/1,.95/2}{
+    \node[font=\small,anchor=west] at (\base+\offset+.1,\row+.28) {Node \rack\idx};
+    \foreach \col in {0,1,2,3}{
+     \node[pTwo/empty,minimum width=.48cm,minimum height=.43cm,inner sep=0pt] at (\base+\offset+.55+\col*.58,\row-.15) {};
+    }
+   }
+  }
+ }
+ \foreach \row in {1.95,.95}{
+  \foreach \col in {0,1,2,3}{
+   \node[pTwo/selected,minimum width=.48cm,minimum height=.43cm,inner sep=0pt] at (.65+\col*.58,\row-.15) {W};
+  }
+  \foreach \offset in {7.15,10.6}{
+   \foreach \col in {0,1}{
+    \node[pTwo/selected,minimum width=.48cm,minimum height=.43cm,inner sep=0pt] at (\offset+.55+\col*.58,\row-.15) {W};
+   }
+  }
+ }
+ \draw[pTwo/remote] (9.95,1.65) -- (10.6,1.65);
+ \node[pTwo/note] at (3.25,-.02) {4 + 4 workers trên 2 nodes};
+ \node[pTwo/note] at (10.3,-.02) {2 + 2 + 2 + 2 workers trên 4 nodes};
+\end{tikzpicture}
