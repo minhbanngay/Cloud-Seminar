@@ -1,0 +1,64 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{lmodern}
+\usepackage{graphicx,tikz,amsmath}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
+\definecolor{BK}{RGB}{30,78,121}
+\definecolor{Teal}{RGB}{15,120,123}
+\definecolor{Amber}{RGB}{170,100,25}
+\definecolor{Red}{RGB}{176,60,61}
+\definecolor{Ink}{RGB}{34,48,62}
+\definecolor{Muted}{RGB}{87,105,122}
+\setbeamercolor{normal text}{fg=Ink,bg=white}
+\setbeamercolor{structure}{fg=BK}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+\setbeamersize{text margin left=.65cm,text margin right=.65cm}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{frametitle}{\vspace{.19cm}\strut\insertframetitle\par\vspace{.08cm}{\color{BK!22}\hrule height .6pt}\vspace{.06cm}}
+\setbeamertemplate{footline}{\hspace{.65cm}\color{Muted}\fontsize{7}{8}\selectfont CLOUD COMPUTING\quad /\quad PHẦN 3: GPU SHARING \& OPTIMIZATION\hfill November 27\textsuperscript{th} 2026\qquad\insertframenumber\,/\,8\hspace{.65cm}\vspace{.17cm}}
+\setbeamertemplate{background canvas}{\begin{tikzpicture}[remember picture,overlay]\node[opacity=.12,inner sep=0] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{assets/Background.pdf}};\fill[white] (current page.north west) rectangle ([yshift=-.92cm]current page.north east);\end{tikzpicture}}
+\hypersetup{pdftitle={Cloud Computing - Phần 3: GPU Sharing và Resource Optimization},pdfauthor={Trần Nguyễn Việt Hưng; Nguyễn Hoàng Gia Huy; Nguyễn Đình Minh},colorlinks=true,urlcolor=BK}
+\tikzset{
+ box/.style={draw=BK!25,fill=white,rounded corners=3pt,line width=.7pt,inner sep=9pt,align=left,text=Ink,font=\fontsize{10}{12}\selectfont},
+ smallbox/.style={box,font=\fontsize{9.5}{11.5}\selectfont,inner sep=7pt},
+ arr/.style={-{Latex[length=2.2mm]},line width=1pt,draw=BK},
+ softarr/.style={arr,draw=Muted!65},
+ label/.style={font=\fontsize{10}{12}\selectfont,text=Muted,align=left},
+ head/.style={font=\fontsize{12}{15}\selectfont\bfseries,text=BK,align=left},
+ big/.style={font=\fontsize{27}{30}\selectfont\bfseries,text=BK},
+ chip/.style={rounded corners=2pt,fill=BK!7,text=BK,inner sep=5pt,font=\fontsize{9}{11}\selectfont\bfseries},
+ gpuchip/.style={rounded corners=1.5pt,fill=Teal!12,draw=Teal!45,text=Teal,inner xsep=4pt,inner ysep=2pt,font=\fontsize{7.5}{9}\selectfont\bfseries},
+ scopebox/.style={draw=BK!30,dashed,rounded corners=4pt,line width=.75pt,fill=BK!2},
+ }
+\newenvironment{canvas}{\begin{tikzpicture}[x=1cm,y=1cm]\useasboundingbox (0,0) rectangle (14.7,6.35);}{\end{tikzpicture}}
+% Varied bottom/callout helpers so slides do not repeat the same dark bar.
+\newcommand{\accentbar}[3]{%
+ \fill[#1!6,rounded corners=2.5pt] (0,.12) rectangle (14.55,.82);
+ \fill[#1] (0,.12) rectangle (.13,.82);
+ \node[anchor=west,text=Ink,font=\fontsize{10}{12}\selectfont,text width=13.95cm] at (.32,.47){\textcolor{#1}{\textbf{#2:}} #3};
+}
+\newcommand{\keynote}[2]{%
+ \draw[BK!20,line width=.6pt] (0,.76)--(14.55,.76);
+ \node[chip,fill=Teal!12,text=Teal,anchor=west,inner xsep=6pt,inner ysep=3pt] (knbadge) at (0,.38){#1};
+ \path let \p1=(knbadge.east) in \pgfextra{\pgfmathsetlengthmacro{\keywidth}{14.55cm-\x1-.28cm}\xdef\KeyWidth{\keywidth}};
+ \node[anchor=west,text=Ink,font=\fontsize{10}{12}\selectfont,text width=\KeyWidth] at ([xshift=.28cm]knbadge.east){#2};
+}
+% Audit actual node bounds, excluding enclosing/background shapes.
+\newcommand{\auditnode}[2]{\path let \p1=(#2.south west),\p2=(#2.north east) in \pgfextra{\typeout{LAYOUT|\insertframenumber|#1|#2|\x1|\y1|\x2|\y2}};}
+\newcommand{\closingbanner}[1]{%
+ \node[box,fill=BK,draw=BK,text=white,text width=13.95cm,minimum height=.68cm,inner ysep=5pt,anchor=south west,font=\fontsize{10.2}{12}\selectfont\bfseries] at (0,.1){#1};
+}
+\providecommand{\SlideLimit}{8}
+\begin{document}
+\input{slides/01-part3-title}
+\ifnum\SlideLimit>1 \input{slides/02-underutilization}\fi
+\ifnum\SlideLimit>2 \input{slides/03-timeslicing}\fi
+\ifnum\SlideLimit>3 \input{slides/04-mps}\fi
+\ifnum\SlideLimit>4 \input{slides/05-mig}\fi
+\ifnum\SlideLimit>5 \input{slides/06-comparison}\fi
+\ifnum\SlideLimit>6 \input{slides/07-summary}\fi
+\ifnum\SlideLimit>7 \input{slides/08-demo}\fi
+\end{document}

@@ -1,0 +1,46 @@
+% Slide 2 -- Part A: GPU Underutilization & 4 Optimization Goals.
+\begin{frame}[t]{Vì sao GPU bị lãng phí và bốn mục tiêu tối ưu}
+\begin{canvas}
+% Top-left: Single physical GPU underutilization visual
+\node[box,fill=BK!3,text width=6.4cm,minimum height=2.34cm,anchor=north west] (leftcard) at (0,6.24){};
+\node[head,anchor=north west] at (.24,6.10){Cấp nguyên 1 GPU cho workload nhỏ};
+\node[label,text width=6.05cm,anchor=north west,font=\fontsize{8.6}{10.6}\selectfont] at (.24,5.58){Kubernetes chỉ nhận request GPU theo số nguyên (\texttt{nvidia.com/gpu: 1}).};
+
+% Visual utilization bar inside left card
+\fill[Teal!78,rounded corners=2pt] (.28,4.24) rectangle (2.15,4.82);
+\node[anchor=center,text=white,font=\fontsize{8.2}{10}\selectfont\bfseries] at (1.215,4.53){Đang dùng};
+\draw[draw=Red!75,fill=Red!6,dashed,line width=.9pt,rounded corners=2pt] (2.25,4.24) rectangle (6.65,4.82);
+\node[anchor=center,text=Red,font=\fontsize{8.2}{10}\selectfont\bfseries] at (4.45,4.53){Compute \& VRAM nhàn rỗi};
+
+% Top-right: 3 root causes of underutilization
+\node[box,fill=Teal!4,draw=Teal!30,text width=6.4cm,minimum height=2.34cm,anchor=north west] (rightcard) at (7.6,6.24){};
+\node[head,text=Teal,anchor=north west] at (7.84,6.10){Nguyên nhân chính gây Underutilization};
+\node[anchor=north west,text=Ink,text width=6.15cm,font=\fontsize{8.7}{11.2}\selectfont] at (7.84,5.54){%
+ $\bullet$\quad \textbf{Cấp phát nguyên chiếc:} workload nhỏ chiếm trọn 1 GPU.\\
+ $\bullet$\quad \textbf{Tải không đều (bursty):} inference nhẹ, notebook có khoảng nghỉ.\\
+ $\bullet$\quad \textbf{Nghẽn ngoài GPU:} chờ CPU tiền xử lý hoặc I/O đọc dữ liệu.};
+
+% Middle heading + 4 optimization goals (matching Slide 4 of Part 1)
+\node[head,anchor=north west,inner sep=0] (goalheading) at (0,3.68){Bốn mục tiêu khi tối ưu tài nguyên GPU};
+
+\foreach \x/\col/\ttl/\body [count=\i] in {
+ 0/Teal/Utilization/{Tăng tỷ lệ sử dụng thực tế của compute và VRAM.},
+ 3.78/BK/Performance/{Giữ throughput cao và kiểm soát độ trễ (latency).},
+ 7.56/Amber/Isolation/{Cô lập bộ nhớ, hiệu năng và lỗi giữa các workload.},
+ 11.34/Red/Cost/{Giảm số GPU cần cấp, tối ưu chi phí vận hành.}
+}{
+ \node[smallbox,text width=2.82cm,minimum height=1.96cm,anchor=north west,inner sep=7pt] (goal\i) at (\x,2.96){};
+ \fill[\col] (\x,2.96) rectangle (\x+3.32,2.88);
+ \node[anchor=north west,text=\col,text width=3cm,font=\fontsize{9.5}{11.5}\selectfont\bfseries] at (\x+.14,2.72){\ttl};
+ \node[anchor=north west,text=Ink,text width=2.99cm,font=\fontsize{8.4}{10.5}\selectfont] at (\x+.14,2.18){\body};
+}
+\auditnode{cards}{leftcard}
+\auditnode{cards}{rightcard}
+\auditnode{goals}{goalheading}
+\auditnode{goals}{goal1}
+\auditnode{goals}{goal2}
+\auditnode{goals}{goal3}
+\auditnode{goals}{goal4}
+\accentbar{Teal}{Bài toán cốt lõi}{Tối ưu GPU luôn là sự đánh đổi giữa Utilization, Performance, Isolation và Cost.}
+\end{canvas}
+\end{frame}

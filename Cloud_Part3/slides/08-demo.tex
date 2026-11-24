@@ -1,0 +1,45 @@
+% Slide 8 -- Part C2: Integrated Demo Introduction.
+\begin{frame}[t]{Demo tổng hợp: AI Workload Scheduling với Kueue}
+\begin{canvas}
+\node[chip,anchor=north west,inner ysep=2.5pt,font=\fontsize{8.2}{10}\selectfont\bfseries] at (0,6.28){DEMO TỔNG HỢP\quad /\quad KUBERNETES + KUEUE};
+
+% Objective callout box
+\node[smallbox,fill=BK!4,draw=BK!30,text width=14.05cm,minimum height=1.12cm,anchor=north west,inner sep=7pt] (demogoal) at (0,5.76){};
+\node[anchor=north west,text=BK,font=\fontsize{10}{12}\selectfont\bfseries] at (.22,5.60){Mục tiêu Demo: AI Workload Scheduling with Kueue on Kubernetes};
+\node[anchor=north west,text=Ink,text width=13.95cm,font=\fontsize{8.9}{10.8}\selectfont] at (.22,5.16){Minh họa cách Kueue quản lý nhiều AI workloads đồng thời, kiểm soát quota theo hàng đợi và phối hợp đặt Pod theo topology trên cụm Kubernetes.};
+
+% 3 Demo stages
+\node[smallbox,fill=white,draw=BK!35,text width=3.95cm,minimum height=3.02cm,anchor=north west] (d1) at (0,4.30){};
+\fill[BK] (0,4.30) rectangle (4.45,4.22);
+\node[anchor=north west,text=BK,font=\fontsize{10}{12}\selectfont\bfseries] at (.20,4.04){1. Thiết lập hàng đợi};
+\node[anchor=north west,text=Ink,text width=4.05cm,font=\fontsize{8.6}{11.2}\selectfont] at (.20,3.50){%
+ $\bullet$\quad Khởi tạo \texttt{ResourceFlavor} và định nghĩa Topology.\\[.1cm]
+ $\bullet$\quad Tạo \texttt{ClusterQueue} với hạn mức GPU cụ thể.\\[.1cm]
+ $\bullet$\quad Gắn \texttt{LocalQueue} cho namespace chạy job.};
+
+\node[smallbox,fill=white,draw=Teal!40,text width=3.95cm,minimum height=3.02cm,anchor=north west] (d2) at (5.05,4.30){};
+\fill[Teal] (5.05,4.30) rectangle (9.50,4.22);
+\node[anchor=north west,text=Teal,font=\fontsize{10}{12}\selectfont\bfseries] at (5.25,4.04){2. Nộp nhiều AI Workloads};
+\node[anchor=north west,text=Ink,text width=4.05cm,font=\fontsize{8.6}{11.2}\selectfont] at (5.25,3.50){%
+ $\bullet$\quad Nộp đồng thời các job có nhu cầu GPU khác nhau.\\[.1cm]
+ $\bullet$\quad Quan sát quá trình \texttt{Queue} $\rightarrow$ \texttt{Admission} theo quota.\\[.1cm]
+ $\bullet$\quad Kiểm chứng job vượt quota được giữ lại an toàn.};
+
+\node[smallbox,fill=white,draw=Amber!45,text width=3.95cm,minimum height=3.02cm,anchor=north west] (d3) at (10.10,4.30){};
+\fill[Amber] (10.10,4.30) rectangle (14.55,4.22);
+\node[anchor=north west,text=Amber,font=\fontsize{10}{12}\selectfont\bfseries] at (10.30,4.04){3. Placement \& Kiểm chứng};
+\node[anchor=north west,text=Ink,text width=4.05cm,font=\fontsize{8.6}{11.2}\selectfont] at (10.30,3.50){%
+ $\bullet$\quad Quan sát vị trí Pod được gán theo miền topology.\\[.1cm]
+ $\bullet$\quad Kiểm tra tài nguyên giải phóng khi job hoàn tất.\\[.1cm]
+ $\bullet$\quad Job kế tiếp trong hàng đợi tự động được admit.};
+
+\draw[arr,line width=1.1pt] (d1.east)--(d2.west);
+\draw[arr,draw=Teal,line width=1.1pt] (d2.east)--(d3.west);
+
+\auditnode{cards}{demogoal}
+\auditnode{cards}{d1}
+\auditnode{cards}{d2}
+\auditnode{cards}{d3}
+\keynote{Chuyển tiếp}{Mời thầy và các bạn theo dõi phần Demo trực tiếp trên cụm Kubernetes.}
+\end{canvas}
+\end{frame}

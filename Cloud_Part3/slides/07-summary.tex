@@ -1,0 +1,45 @@
+% Slide 7 -- Part C1: Putting Everything Together (WHEN - WHERE - HOW).
+\begin{frame}[t]{Tổng hợp kiến trúc quản lý và lập lịch GPU trên GKE}
+\begin{canvas}
+\node[label,text=Ink,anchor=north west,text width=14.5cm,font=\fontsize{9.6}{11.5}\selectfont] at (0,6.26){Ba lớp điều phối bổ trợ nhau từ lúc nộp job đến khi thực thi trên từng GPU vật lý.};
+
+% Pillar 1: WHEN (Part 1)
+\node[smallbox,fill=BK!3,draw=BK!35,text width=3.95cm,minimum height=4.42cm,anchor=north west] (pwhen) at (0,5.66){};
+\fill[BK] (0,5.66) rectangle (4.45,5.56);
+\node[chip,fill=BK,text=white,anchor=north west,inner xsep=7pt,inner ysep=3pt] at (.20,5.38){WHEN --- PHẦN 1};
+\node[anchor=north west,text=BK,text width=4.05cm,font=\fontsize{10.5}{12.5}\selectfont\bfseries] at (.20,4.78){Kueue \& Gang Scheduling};
+\node[anchor=north west,text=Ink,text width=4.05cm,font=\fontsize{8.6}{11.2}\selectfont] at (.20,3.96){%
+ $\bullet$\quad Điều phối \textbf{thời điểm chạy} ở cấp Workload.\\[.12cm]
+ $\bullet$\quad Hàng đợi, Quota, Priority, Preemption \& Fair Sharing.\\[.12cm]
+ $\bullet$\quad \textbf{All-or-Nothing:} tránh giữ GPU nhàn rỗi khi thiếu worker.};
+
+% Pillar 2: WHERE (Part 2)
+\node[smallbox,fill=Teal!4,draw=Teal!40,text width=3.95cm,minimum height=4.42cm,anchor=north west] (pwhere) at (5.05,5.66){};
+\fill[Teal] (5.05,5.66) rectangle (9.50,5.56);
+\node[chip,fill=Teal,text=white,anchor=north west,inner xsep=7pt,inner ysep=3pt] at (5.25,5.38){WHERE --- PHẦN 2};
+\node[anchor=north west,text=Teal,text width=4.05cm,font=\fontsize{10.5}{12.5}\selectfont\bfseries] at (5.25,4.78){Topology-Aware Scheduling};
+\node[anchor=north west,text=Ink,text width=4.05cm,font=\fontsize{8.6}{11.2}\selectfont] at (5.25,3.96){%
+ $\bullet$\quad Chọn \textbf{vị trí đặt} GPU/worker theo cấu trúc Node, Rack, Cluster.\\[.12cm]
+ $\bullet$\quad Ưu tiên NVLink/NVSwitch và băng thông nội bộ cao.\\[.12cm]
+ $\bullet$\quad Giảm độ trễ đồng bộ \textbf{AllReduce} khi training phân tán.};
+
+% Pillar 3: HOW (Part 3)
+\node[smallbox,fill=Amber!5,draw=Amber!45,text width=3.95cm,minimum height=4.42cm,anchor=north west] (phow) at (10.10,5.66){};
+\fill[Amber] (10.10,5.66) rectangle (14.55,5.56);
+\node[chip,fill=Amber,text=white,anchor=north west,inner xsep=7pt,inner ysep=3pt] at (10.30,5.38){HOW --- PHẦN 3};
+\node[anchor=north west,text=Amber,text width=4.05cm,font=\fontsize{10.5}{12.5}\selectfont\bfseries] at (10.30,4.78){GPU Sharing \& Optimization};
+\node[anchor=north west,text=Ink,text width=4.05cm,font=\fontsize{8.6}{11.2}\selectfont] at (10.30,3.96){%
+ $\bullet$\quad Khai thác \textbf{hiệu quả từng GPU} cho workload nhỏ/inference.\\[.12cm]
+ $\bullet$\quad Chọn Time-Slicing, NVIDIA MPS hoặc MIG theo ngữ cảnh.\\[.12cm]
+ $\bullet$\quad Cân bằng Utilization, Performance, Isolation \& Cost.};
+
+% Connecting arrows between pillars
+\draw[arr,line width=1.15pt] (pwhen.east)--(pwhere.west);
+\draw[arr,draw=Teal,line width=1.15pt] (pwhere.east)--(phow.west);
+
+\auditnode{cards}{pwhen}
+\auditnode{cards}{pwhere}
+\auditnode{cards}{phow}
+\closingbanner{Phối hợp WHEN -- WHERE -- HOW giúp tối ưu cả tiến độ huấn luyện lẫn chi phí hạ tầng GPU.}
+\end{canvas}
+\end{frame}

@@ -1,0 +1,50 @@
+% Slide 3 -- Part B1: GPU Time-Slicing (Time-Sharing).
+\begin{frame}[t]{GPU Time-Slicing: Chia sẻ GPU theo lát cắt thời gian}
+\begin{canvas}
+\node[chip,anchor=north west,inner ysep=2.5pt,font=\fontsize{8.2}{10}\selectfont\bfseries] at (0,6.28){KỸ THUẬT 1\quad /\quad TIME-SLICING (GKE TIME-SHARING)};
+
+% Top diagram: 3 Pods -> Sequential Time-Sliced GPU Timeline
+\node[scopebox,draw=BK!35,fill=BK!2,minimum width=14.55cm,minimum height=2.04cm,anchor=north west] (tsframe) at (0,5.78){};
+
+\node[smallbox,fill=BK!8,draw=BK!45,text width=1.65cm,align=center,minimum height=.44cm,inner sep=3pt,font=\fontsize{8.5}{10}\selectfont\bfseries] (pa) at (1.15,5.38){Pod A};
+\node[smallbox,fill=Teal!10,draw=Teal!50,text width=1.65cm,align=center,minimum height=.44cm,inner sep=3pt,font=\fontsize{8.5}{10}\selectfont\bfseries] (pb) at (1.15,4.76){Pod B};
+\node[smallbox,fill=Amber!10,draw=Amber!50,text width=1.65cm,align=center,minimum height=.44cm,inner sep=3pt,font=\fontsize{8.5}{10}\selectfont\bfseries] (pc) at (1.15,4.14){Pod C};
+
+\node[smallbox,fill=white,draw=BK!30,text width=10.35cm,minimum height=1.66cm,anchor=north west,inner sep=6pt] (timeline) at (3.45,5.59){};
+\node[anchor=north west,text=BK,font=\fontsize{9}{10.5}\selectfont\bfseries] at (3.65,5.47){1 GPU vật lý --- Chuyển ngữ cảnh luân phiên (Context Switching)};
+
+% Alternating time slices
+\foreach \x/\col/\lbl in {
+ 3.68/BK/A, 5.40/Teal/B, 7.12/Amber/C, 8.84/BK/A, 10.56/Teal/B, 12.28/Amber/C
+}{
+ \fill[\col!75,rounded corners=2pt] (\x,4.52) rectangle (\x+1.52,5.02);
+ \node[anchor=center,text=white,font=\fontsize{8.5}{10}\selectfont\bfseries] at (\x+.76,4.77){Pod \lbl};
+}
+\draw[softarr] (3.68,4.28)--(13.85,4.28);
+\node[anchor=west,text=Muted,font=\fontsize{8}{9.5}\selectfont] at (3.68,4.11){Thời gian (Instruction-level Preemption từ kiến trúc Pascal+)};
+
+\draw[arr] (pa.east)--(timeline.west |- pa.east);
+\draw[arr,draw=Teal] (pb.east)--(timeline.west |- pb.east);
+\draw[arr,draw=Amber] (pc.east)--(timeline.west |- pc.east);
+
+% Middle 2-column structured cards
+\node[smallbox,fill=BK!3,draw=BK!30,text width=6.5cm,minimum height=2.40cm,anchor=north west] (tspro) at (0,3.48){};
+\node[anchor=north west,text=BK,font=\fontsize{10.2}{12}\selectfont\bfseries] at (.22,3.30){Nguyên lý \& Đặc điểm trên GKE};
+\node[anchor=north west,text=Ink,text width=6.25cm,font=\fontsize{8.7}{11.4}\selectfont] at (.22,2.78){%
+ $\bullet$\quad Cấp luân phiên lát cắt thời gian trên cùng 1 GPU vật lý.\\
+ $\bullet$\quad Mỗi container thấy toàn bộ GPU khi tới lượt thực thi.\\
+ $\bullet$\quad Hỗ trợ rộng (Pascal+); GKE cho tối đa \textbf{48 client/GPU}.};
+
+\node[smallbox,fill=Amber!5,draw=Amber!40,text width=6.5cm,minimum height=2.40cm,anchor=north west] (tscon) at (7.55,3.48){};
+\node[anchor=north west,text=Amber,font=\fontsize{10.2}{12}\selectfont\bfseries] at (7.77,3.30){Đánh đổi \& Giới hạn cô lập};
+\node[anchor=north west,text=Ink,text width=6.25cm,font=\fontsize{8.7}{11.4}\selectfont] at (7.77,2.78){%
+ $\bullet$\quad Chi phí context switching làm tăng và dao động độ trễ.\\
+ $\bullet$\quad \textbf{Không ép giới hạn VRAM} giữa các job (dễ gây OOM).\\
+ $\bullet$\quad Chỉ nên dùng chung trong cùng \textit{trust boundary}.};
+
+\auditnode{cards}{timeline}
+\auditnode{cards}{tspro}
+\auditnode{cards}{tscon}
+\keynote{Phù hợp}{Workload dạng bursty, có khoảng nghỉ (dev/test, notebook, thử nghiệm) chấp nhận biến động latency.}
+\end{canvas}
+\end{frame}

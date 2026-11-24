@@ -1,0 +1,152 @@
+KỊCH BẢN THUYẾT TRÌNH — PHẦN 3
+Seminar Cloud Computing | November 27th 2026
+8 slide (1 tiêu đề + 6 nội dung chính + 1 dẫn demo), khoảng 9 phút chưa tính demo.
+Phạm vi: người 3 trong Roles.txt.
+Mốc thời gian là gợi ý tập nói; có thể điều chỉnh theo tốc độ thực tế.
+
+SLIDE 1 — TIÊU ĐỀ PHẦN 3 (0:00–0:20 | 20 giây)
+“Cảm ơn phần trình bày vừa rồi về Topology-Aware Scheduling. Ở Phần 1
+và Phần 2, chúng ta đã giải quyết câu hỏi khi nào chạy workload và đặt
+các worker ở đâu. Sang Phần 3, em sẽ trình bày về GPU Sharing và tối ưu
+tài nguyên GPU, sau đó tổng hợp toàn bộ kiến trúc và dẫn vào phần Demo.”
+
+SLIDE 2 — GPU UNDERUTILIZATION & 4 MỤC TIÊU TỐI ƯU (0:20–2:15 | 1 phút 55 giây)
+“Trước hết, vì sao nhiều AI workloads không tận dụng hết GPU? Trong
+Kubernetes mặc định, khác với CPU có thể yêu cầu dạng phân số như 0.5
+core, GPU chỉ được yêu cầu theo số nguyên — tức tối thiểu 1 GPU vật lý
+cho mỗi container.
+
+Hệ quả là nếu một workload nhỏ — ví dụ inference mô hình nhẹ, notebook
+phát triển hay batch job cỡ nhỏ — được cấp nguyên một GPU cao cấp như
+A100 hoặc H100, nó chỉ tiêu thụ một phần nhỏ năng lực tính toán và VRAM;
+phần còn lại bị bỏ trống nhưng workload khác không thể dùng chung. Ngoài
+ra, nhiều tải AI có tính chất bursty, có khoảng nghỉ giữa các request,
+hoặc bị nghẽn ở bước CPU tiền xử lý và I/O đọc dữ liệu khiến GPU phải chờ.
+
+Vì vậy, khi tối ưu hạ tầng GPU, ta phải cân đối bốn mục tiêu:
+- Utilization: nâng cao mức sử dụng thực tế của compute và bộ nhớ GPU.
+- Performance: giữ thông lượng cao và kiểm soát độ trễ ổn định.
+- Isolation: cô lập bộ nhớ, hiệu năng và lỗi để workload này không làm
+  ảnh hưởng hay đánh sập workload khác.
+- Cost: giảm số GPU cần thuê, trực tiếp hạ chi phí vận hành.
+
+Điểm mấu chốt là bốn mục tiêu này luôn có sự đánh đổi. Tùy loại workload,
+ta sẽ chọn kỹ thuật GPU sharing phù hợp ở các slide tiếp theo.”
+Thao tác: chỉ thanh sử dụng GPU phía trên trái, rồi lướt nhanh 4 thẻ mục tiêu.
+
+SLIDE 3 — GPU TIME-SLICING (2:15–3:30 | 1 phút 15 giây)
+“Kỹ thuật đầu tiên là GPU Time-Slicing, trên GKE gọi là GPU time-sharing.
+Nguyên lý khá giống cơ chế đa nhiệm của CPU: nhiều container cùng chia sẻ
+một GPU vật lý bằng cách lần lượt nhận các lát cắt thời gian. Từ kiến trúc
+NVIDIA Pascal trở lên, GPU hỗ trợ instruction-level preemption nên việc
+chuyển ngữ cảnh (context switching) giữa các tiến trình diễn ra công bằng
+hơn.
+
+Điểm thuận lợi là triển khai đơn giản, hỗ trợ rộng trên nhiều dòng GPU;
+mỗi container khi tới lượt sẽ thấy toàn bộ tài nguyên GPU, và trên GKE có
+thể cấu hình tối đa 48 client chia sẻ một GPU vật lý.
+
+Tuy nhiên, đánh đổi nằm ở hai điểm: thứ nhất, chi phí chuyển ngữ cảnh làm
+độ trễ tăng và dao động; thứ hai, Time-Slicing không ép giới hạn VRAM ở
+mức phần cứng giữa các job, nên một workload dùng quá nhiều bộ nhớ có thể
+gây lỗi OOM cho các workload dùng chung. Do đó, GKE khuyến nghị chỉ dùng
+cho các workload trong cùng một trust boundary.
+
+Kỹ thuật này phù hợp nhất với workload dạng bursty, có nhiều khoảng nghỉ
+như môi trường dev/test, notebook hoặc thử nghiệm mô hình.”
+Thao tác: chỉ dòng thời gian A → B → C → A để nhấn mạnh chạy luân phiên.
+
+SLIDE 4 — NVIDIA MPS (3:30–4:45 | 1 phút 15 giây)
+“Nếu nhiều workload nhỏ cùng chạy liên tục và ta muốn tránh chi phí chuyển
+ngữ cảnh của Time-Slicing, ta có kỹ thuật thứ hai: NVIDIA MPS — Multi-Process
+Service.
+
+Khác với Time-Slicing chạy luân phiên, MPS cung cấp một triển khai CUDA API
+tương thích nhị phân thông qua MPS Server. Nhờ đó, các CUDA kernel từ nhiều
+tiến trình container khác nhau có thể thực thi đồng thời trên các khối SM
+của cùng một GPU vật lý, lấp đầy năng lực tính toán còn dư và giảm mạnh
+chi phí context switching. Trên GKE, MPS cho phép giới hạn mềm theo tỷ lệ
+phần trăm active threads và dung lượng pinned device memory, hỗ trợ tối đa
+48 client trên GPU Volta trở lên (16 trên tiền-Volta).
+
+Đánh đổi lớn nhất của MPS là mức độ cô lập: không có cô lập phần cứng cho
+memory bandwidth hay bộ mã hóa/giải mã; đặc biệt, một lỗi nghiêm trọng
+(fatal fault) ở một client có thể ảnh hưởng đến toàn bộ các client khác
+trên cùng GPU. Ngoài ra trên GKE, Pod dùng MPS cần bật hostIPC: true nên
+cần lưu ý ranh giới bảo mật.
+
+Vì vậy, MPS rất phù hợp cho batch processing cỡ nhỏ đến vừa hoặc các tiến
+trình hợp tác trong cùng ứng dụng như MPI/CUDA cần tối đa hóa throughput.”
+Thao tác: chỉ mũi tên từ 3 client qua MPS Server vào 3 làn chạy song song.
+
+SLIDE 5 — MULTI-INSTANCE GPU (MIG) (4:45–6:00 | 1 phút 15 giây)
+“Khi bài toán đòi hỏi mức cô lập nghiêm ngặt và chất lượng dịch vụ ổn định
+như môi trường production, kỹ thuật thứ ba là MIG — Multi-Instance GPU.
+
+Khác hoàn toàn với hai kỹ thuật phần mềm trên, MIG chia trực tiếp một GPU
+vật lý thành tối đa 7 phân vùng phần cứng độc lập (ví dụ các profile như
+1g.5gb, 2g.10gb hay 3g.20gb). Mỗi instance sở hữu riêng khối tính toán SM,
+vùng VRAM và băng thông bộ nhớ riêng biệt, và được Kubernetes gán độc lập
+cho một container thông qua nhãn gke-gpu-partition-size.
+
+Ưu điểm nổi bật là hardware isolation hoàn toàn: dù một instance chạy hết
+tải hoặc gặp sự cố, các instance còn lại vẫn duy trì throughput và latency
+ổn định, dự đoán được.
+
+Giới hạn của MIG là yêu cầu phần cứng mới (từ kiến trúc NVIDIA Ampere trở
+lên như A100, H100), tối đa 7 instance trên mỗi GPU, cấu hình phân vùng cố
+định kém linh hoạt hơn, và trên GKE hiện chưa hỗ trợ metric duty_cycle cho
+MIG. MIG là lựa chọn hàng đầu cho AI inference production cần SLA chặt chẽ.”
+Thao tác: chỉ 3 phân vùng phần cứng tách biệt bằng vách ngăn nét đứt.
+
+SLIDE 6 — SO SÁNH TIME-SLICING, MPS & MIG (6:00–7:15 | 1 phút 15 giây)
+“Bảng này tổng kết nhanh ba kỹ thuật theo năm tiêu chí để dễ lựa chọn:
+- Nếu ưu tiên triển khai nhanh, giảm lãng phí cho tải không đều như dev/test
+  hoặc notebook và chấp nhận dao động độ trễ: chọn Time-Slicing.
+- Nếu cần chạy đồng thời nhiều tác vụ nhỏ hoặc tiến trình hợp tác để tối đa
+  hóa throughput mà các tiến trình cùng tin cậy nhau: chọn NVIDIA MPS.
+- Nếu chạy AI inference production đòi hỏi cô lập phần cứng, chống nhiễu và
+  QoS dự đoán được trên GPU Ampere trở lên: chọn MIG.
+
+Một thực hành rất hay trên GKE là ta có thể kết hợp chúng với nhau: dùng
+MIG chia cứng GPU thành các vùng cô lập, sau đó bật Time-Slicing hoặc MPS
+bên trong từng MIG partition để tăng thêm mật độ container mà vẫn giữ được
+ranh giới phần cứng giữa các nhóm.”
+Thao tác: chỉ theo từng cột từ trái sang phải (tăng dần mức cô lập).
+
+SLIDE 7 — TỔNG HỢP KIẾN TRÚC: WHEN – WHERE – HOW (7:15–8:35 | 1 phút 20 giây)
+“Nhìn lại toàn bộ bức tranh quản lý và lập lịch GPU cho AI workloads trên
+GKE, ba phần của nhóm liên kết chặt chẽ theo mô hình WHEN – WHERE – HOW:
+
+- Thứ nhất, WHEN — Kueue và Gang Scheduling ở Phần 1: quyết định khi nào
+  workload được khởi chạy. Nhờ hàng đợi phân cấp, quota, priority, fair
+  sharing và nguyên tắc all-or-nothing, hệ thống tránh tình trạng cấp phát
+  dở dang gây giữ GPU nhàn rỗi.
+- Thứ hai, WHERE — Topology-Aware Scheduling ở Phần 2: quyết định đặt các
+  worker ở đâu. Bằng cách bám sát cấu trúc Node, Rack và kết nối tốc độ cao
+  như NVLink/NVSwitch, hệ thống giảm chi phí đồng bộ AllReduce trong huấn
+  luyện phân tán.
+- Thứ ba, HOW — GPU Sharing ở Phần 3: quyết định khai thác từng GPU hiệu
+  quả ra sao cho các workload nhỏ và inference thông qua Time-Slicing, MPS
+  và MIG.
+
+Chỉ khi phối hợp đồng bộ cả ba lớp này, cụm GKE mới vừa tối ưu được tốc độ
+huấn luyện, vừa đảm bảo chi phí và hiệu suất khai thác hạ tầng GPU.”
+Thao tác: chỉ lần lượt 3 cột WHEN → WHERE → HOW theo chiều mũi tên.
+
+SLIDE 8 — GIỚI THIỆU DEMO TỔNG HỢP (8:35–9:00 | 25 giây)
+“Để minh họa trực quan những cơ chế trên trong thực tế, nhóm em sẽ thực
+hiện phần Demo: AI Workload Scheduling with Kueue on Kubernetes.
+
+Demo gồm ba bước chính: thiết lập ResourceFlavor, ClusterQueue và
+LocalQueue kèm cấu hình topology; nộp đồng thời nhiều AI workloads để quan
+sát hàng đợi và cơ chế kiểm soát quota; cuối cùng là kiểm chứng cách Pod
+được đặt theo topology và giải phóng tài nguyên cho job kế tiếp.
+
+Sau đây em xin chuyển sang màn hình thực hành Demo.”
+Thao tác: chuyển màn hình sang terminal/dashboard Demo.
+
+NGUỒN TRA CỨU
+Đường dẫn chính thức được tập hợp trong README.txt.
+Các tỷ lệ minh họa trên thanh GPU và profile MIG (1g.5gb, 2g.10gb, 3g.20gb)
+là ví dụ minh họa theo tài liệu GKE/NVIDIA, không phải kết quả benchmark riêng.

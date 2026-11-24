@@ -1,0 +1,48 @@
+% Slide 5 -- Part B3: Multi-Instance GPU (MIG).
+\begin{frame}[t]{Multi-Instance GPU (MIG): Phân chia phần cứng độc lập}
+\begin{canvas}
+\node[chip,anchor=north west,inner ysep=2.5pt,font=\fontsize{8.2}{10}\selectfont\bfseries] at (0,6.28){KỸ THUẬT 3\quad /\quad MULTI-INSTANCE GPU (MIG)};
+
+% Top diagram: Hardware-isolated GPU partitions (Ampere+)
+\node[scopebox,draw=BK!40,fill=BK!2,minimum width=14.55cm,minimum height=2.04cm,anchor=north west] (migframe) at (0,5.78){};
+\node[anchor=north west,text=BK,font=\fontsize{8.8}{10.5}\selectfont\bfseries] at (.22,5.67){1 GPU vật lý (Ampere+: A100, H100) --- Chia tối đa 7 Hardware Instances độc lập};
+
+\node[smallbox,fill=Teal!7,draw=Teal!55,text width=3.95cm,minimum height=1.22cm,anchor=north west,inner sep=6pt] (m1) at (.24,5.24){%
+ \textcolor{Teal}{\textbf{Instance 1 (1g.5gb)}}\\[.04cm]
+ {\fontsize{8.1}{9.8}\selectfont SM + VRAM + BW riêng\\Gán trực tiếp cho \textbf{Pod A}}};
+
+\node[smallbox,fill=BK!6,draw=BK!45,text width=4.20cm,minimum height=1.22cm,anchor=north west,inner sep=6pt] (m2) at (4.86,5.24){%
+ \textcolor{BK}{\textbf{Instance 2 (2g.10gb)}}\\[.04cm]
+ {\fontsize{8.1}{9.8}\selectfont SM + VRAM + BW riêng\\Gán trực tiếp cho \textbf{Pod B}}};
+
+\node[smallbox,fill=Amber!7,draw=Amber!50,text width=4.25cm,minimum height=1.22cm,anchor=north west,inner sep=6pt] (m3) at (9.74,5.24){%
+ \textcolor{Amber}{\textbf{Instance 3 (3g.20gb)}}\\[.04cm]
+ {\fontsize{8.1}{9.8}\selectfont SM + VRAM + BW riêng\\Gán trực tiếp cho \textbf{Pod C}}};
+
+% Hardware isolation wall indicators
+\draw[draw=Ink!45,line width=1.1pt,dashed] (4.70,5.28)--(4.70,3.96);
+\draw[draw=Ink!45,line width=1.1pt,dashed] (9.58,5.28)--(9.58,3.96);
+
+% Middle 2-column structured cards
+\node[smallbox,fill=Teal!4,draw=Teal!35,text width=6.5cm,minimum height=2.40cm,anchor=north west] (migpro) at (0,3.48){};
+\node[anchor=north west,text=Teal,font=\fontsize{10.2}{12}\selectfont\bfseries] at (.22,3.30){Ưu điểm \& Cô lập phần cứng};
+\node[anchor=north west,text=Ink,text width=6.25cm,font=\fontsize{8.7}{11.4}\selectfont] at (.22,2.78){%
+ $\bullet$\quad \textbf{Hardware isolation:} tách biệt compute, VRAM, băng thông \& lỗi.\\
+ $\bullet$\quad \textbf{QoS ổn định:} throughput và latency dự đoán được.\\
+ $\bullet$\quad Có thể kết hợp MIG + Time-Slicing/MPS trên từng slice.};
+
+\node[smallbox,fill=Amber!5,draw=Amber!40,text width=6.5cm,minimum height=2.40cm,anchor=north west] (migcon) at (7.55,3.48){};
+\node[anchor=north west,text=Amber,font=\fontsize{10.2}{12}\selectfont\bfseries] at (7.77,3.30){Giới hạn \& Lưu ý trên GKE};
+\node[anchor=north west,text=Ink,text width=6.25cm,font=\fontsize{8.7}{11.4}\selectfont] at (7.77,2.78){%
+ $\bullet$\quad Chỉ hỗ trợ GPU dòng Ampere trở lên (A100, H100, ...).\\
+ $\bullet$\quad Tối đa \textbf{7 instances/GPU}; phân vùng cố định kém linh hoạt.\\
+ $\bullet$\quad GKE chọn qua \texttt{gke-gpu-partition-size}; chưa có \texttt{duty\_cycle}.};
+
+\auditnode{cards}{m1}
+\auditnode{cards}{m2}
+\auditnode{cards}{m3}
+\auditnode{cards}{migpro}
+\auditnode{cards}{migcon}
+\keynote{Phù hợp}{AI Inference production hoặc workload song song cần QoS ổn định và cô lập lỗi nghiêm ngặt.}
+\end{canvas}
+\end{frame}
