@@ -1,0 +1,215 @@
+KỊCH BẢN THUYẾT TRÌNH — PHẦN 1
+Seminar Cloud Computing | November 27th 2026
+10 slide, khoảng 14 phút. Phạm vi: người 1 trong Roles.txt.
+Mốc thời gian là gợi ý tập nói; có thể điều chỉnh theo tốc độ thực tế.
+
+SLIDE 1 — BÌA CHUNG SEMINAR (0:00–0:15 | 15 giây)
+“Em xin chào thầy và các bạn. Hôm nay nhóm em trình bày chủ đề Quản lý
+và Lập lịch GPU cho AI Workloads trên Google Kubernetes Engine, gồm ba
+phần chính: Workload Scheduling, Topology-Aware Placement và GPU Sharing.”
+
+SLIDE 2 — TIÊU ĐỀ PHẦN 1 (0:15–0:35 | 20 giây)
+“Trong Phần 1, em tập trung vào bài toán điều phối thời điểm khởi chạy
+và phân bổ quota cho các distributed AI workloads. Nội dung đi qua ba
+mục: bài toán và động lực trên GKE, cơ chế Kubernetes & Gang Scheduling,
+và kiến trúc hàng đợi Kueue.”
+
+SLIDE 3 — AI WORKLOADS TRÊN GKE (0:35–1:40 | 1 phút 05 giây)
+“Trên Google Cloud, AI workloads gồm training, fine-tuning và inference.
+Trong bài này, chúng ta tập trung vào training phân tán cần nhiều GPU.
+GKE cung cấp môi trường Kubernetes để tổ chức các workload đó.
+
+Nhìn từ trái sang phải, người dùng gửi workload vào cluster; dữ liệu
+và mô hình có thể nằm trong Cloud Storage. Control plane tiếp nhận
+yêu cầu và điều phối. Các worker Pod chạy trên GPU node để thực hiện
+tính toán. Sơ đồ là kiến trúc khái niệm, không phải cấu hình triển khai
+đầy đủ: thực tế còn có networking, lưu trữ, driver và device plugin.
+
+Điểm cần nhớ là GPU không được cấp một cách vô điều kiện. Pod phải
+yêu cầu tài nguyên, và hệ thống phải cân đối nhu cầu của nhiều job,
+nhiều nhóm cùng sử dụng một cluster. Phần 1 sẽ giải quyết điều kiện
+khởi chạy; phần tiếp theo đi sâu vào vị trí các GPU.”
+Thao tác: chỉ vào workload → control plane → các GPU node.
+
+SLIDE 4 — WEB VÀ DISTRIBUTED TRAINING (1:40–2:55 | 1 phút 15 giây)
+“Hãy so sánh một dịch vụ web stateless điển hình với training đồng bộ.
+Với dịch vụ web, từng replica có thể xử lý request riêng. Nếu mới có
+hai trong ba replica hoạt động, hệ thống vẫn có thể phục vụ, dù năng
+lực có thể thấp hơn mong muốn.
+
+Với training phân tán đồng bộ, các worker phối hợp trong một bước học.
+Ở những điểm đồng bộ, thiếu worker có thể làm cả nhóm chưa tiến lên.
+Vì thế, cấp thành công một phần tài nguyên chưa chắc mang lại giá trị
+tương ứng cho cả training job.
+
+Điều này tạo ra bốn áp lực: GPU có chi phí cao; tài nguyên trống có
+thể phân mảnh; các nhóm phải chờ vì tranh chấp; và GPU đã cấp phát
+có thể chưa thực sự tính toán. Utilization là mức sử dụng thực tế,
+khác với việc GPU đã được giữ cho một Pod.
+
+Do đó, ngoài từng Pod, ta cần xét cả workload có đủ điều kiện tạo
+tiến độ hay chưa.”
+Lưu ý: đây là so sánh với training đồng bộ; không khẳng định mọi web
+workload đều độc lập hoặc mọi training job đều có kích thước cố định.
+
+SLIDE 5 — BÀI TOÁN 64/60 GPU (2:55–4:10 | 1 phút 15 giây)
+“Giả sử một training job có đúng 64 worker, mỗi worker cần một GPU.
+Job không hỗ trợ co giãn và phải có đủ worker để bắt đầu bước học.
+Nhưng hiện tại cluster chỉ còn 60 GPU phù hợp đang trống.
+
+Nếu xét từng Pod độc lập, 60 Pod có thể được đặt lên node, còn bốn
+Pod ở trạng thái Pending. Các ô màu thể hiện 60 worker đã có GPU;
+bốn ô nét đứt là phần còn thiếu.
+
+Trong tình huống giả định này, 60 worker giữ GPU nhưng phải đợi những
+worker còn lại. Không thể suy ra rằng đã cấp 60 trên 64 GPU thì job
+đã đạt 93,75 phần trăm tiến độ. Đây là chỗ partial scheduling gây
+lãng phí: tài nguyên đã bị giữ, nhưng cả job chưa thực hiện được
+bước huấn luyện hữu ích.
+
+Một cách tiếp cận là để workload chờ ở hàng đợi cho đến khi đủ điều
+kiện, thay vì cho các worker giữ tài nguyên trong lúc đợi nhau.”
+Thao tác: chỉ 60 ô màu, rồi bốn ô thiếu; dừng ngắn trước thông điệp.
+
+SLIDE 6 — KUBERNETES DEFAULT SCHEDULER (4:10–6:00 | 1 phút 50 giây)
+“Trước khi nói đến giải pháp, cần hiểu kube-scheduler đang làm gì.
+Sơ đồ rút gọn gồm một Pod chưa có node, Filter, Score rồi Bind.
+
+Filter loại các node không phù hợp. Những điều kiện được xét có thể
+gồm requests về GPU, CPU, RAM, node selectors, affinity và các ràng
+buộc khác. Nếu không có node nào phù hợp, Pod tiếp tục chờ. Nếu có
+nhiều node phù hợp, Score xếp hạng chúng. Sau đó scheduler chọn node
+và thực hiện binding để gán Pod vào node đó. Đây là sơ đồ khái quát;
+trong triển khai còn nhiều extension point và plugin khác.
+
+Ví dụ, một Pod yêu cầu tám GPU thì phải có một node phù hợp đáp ứng
+yêu cầu đó. Hai node mỗi node còn bốn GPU không tự ghép thành một
+node có tám GPU cho Pod này. Điều đó giải thích tại sao tổng GPU
+trống đủ vẫn có thể xuất hiện Pod Pending.
+
+Ở lớp Pod-level, câu hỏi là: Pod này nên đặt ở node nào? Còn ở lớp
+workload-level, câu hỏi là: cả nhóm worker đã có đủ điều kiện để bắt
+đầu chưa? Hai lớp liên quan nhưng không thay thế nhau.
+
+Quay lại ví dụ 64 worker, việc scheduler bind được một Pod chỉ xác
+nhận quyết định cho Pod đó. Nó chưa chứng minh 63 Pod còn lại cũng
+sẵn sàng hoặc training đã tạo tiến độ. Chúng ta cần thêm sự phối hợp
+ở cấp job, đặc biệt khi một workload có nhiều Pod phải chạy cùng nhau.”
+Thao tác: đi từng bước trên sơ đồ; sau đó so sánh hai khối phía dưới.
+
+SLIDE 7 — GANG SCHEDULING (6:00–8:00 | 2 phút)
+“Gang scheduling đưa điều kiện của cả nhóm vào quá trình điều phối.
+Với job cố định trong ví dụ, 60 trên 64 GPU chưa đủ điều kiện cho nhóm
+bắt đầu; khi đáp ứng đủ yêu cầu và placement, nhóm mới được khởi chạy.
+
+Từ ‘cùng nhau’ ở đây nói đến khả năng cùng tham gia và tạo tiến độ,
+không đòi hỏi thao tác bind tất cả Pod phải xảy ra đúng một thời điểm.
+Các cách hiện thực có thể dùng quota admission, thông tin placement,
+cơ chế chờ hoặc timeout để phối hợp.
+
+Lợi ích là giảm tình trạng giữ một phần GPU mà chưa làm được việc.
+Ví dụ hai job đều cần bốn GPU, cluster có sáu GPU: nếu mỗi job giữ
+ba GPU và cùng chờ một GPU còn thiếu, cả hai có thể bị kẹt. Điều phối
+theo nhóm giúp tránh hoặc xử lý kiểu giữ tài nguyên chéo như vậy,
+tùy cơ chế triển khai.
+
+Đánh đổi là job lớn có thể phải chờ lâu để gom đủ tài nguyên. Cần
+chính sách hàng đợi, ưu tiên và chống đói; các job nhỏ có thể được
+đi trước khi chính sách cho phép và chúng vừa tài nguyên còn lại.
+Đó là lựa chọn giữa thời gian chờ, công bằng và hiệu quả sử dụng.
+
+Một giới hạn quan trọng: đủ số GPU tổng cộng chưa đảm bảo đặt được
+từng Pod. Admission bằng quota và việc kiểm tra placement cần phối
+hợp. Đây là cầu nối sang Kueue và sau đó là topology-aware scheduling.”
+Lưu ý: trạng thái chờ/khởi chạy trên slide là mô hình mục tiêu; không
+khẳng định mọi cấu hình Kueue có tính nguyên tử tuyệt đối.
+
+SLIDE 8 — KUEUE VÀ KIẾN TRÚC HÀNG ĐỢI (8:00–10:00 | 2 phút)
+“Kueue là hệ thống Kubernetes-native quản lý hàng đợi, quota và điều
+kiện admission của workload. Có thể triển khai nó với Kubernetes/GKE;
+không nên hiểu rằng mọi cluster GKE đã tự động bật Kueue.
+
+Có bốn đối tượng cần nhớ. Workload là đơn vị được xét admission;
+nó mô tả nhu cầu tài nguyên của các nhóm Pod, thường gọi là PodSets.
+Trong ví dụ, đây là nhu cầu của cả 64 worker.
+
+LocalQueue là hàng đợi trong namespace. Chẳng hạn namespace team-a
+có LocalQueue train. LocalQueue tham chiếu một ClusterQueue.
+
+ClusterQueue có phạm vi cluster, quản lý quota theo resource/flavor
+và các chính sách liên quan. Ví dụ ta cấu hình quota cho GPU A100.
+Nhiều LocalQueue có thể trỏ đến cùng một ClusterQueue.
+
+ResourceFlavor biểu diễn đặc tính tài nguyên, chẳng hạn loại GPU
+hoặc loại node. Nhãn node giúp gắn một flavor với nhóm node phù hợp.
+Flavor là mô tả đặc tính và ràng buộc, không phải bản thân một GPU.
+
+Hãy đọc sơ đồ theo hai hướng: workload vào LocalQueue và cạnh tranh
+quota tại ClusterQueue; ClusterQueue tham chiếu ResourceFlavor để
+xét tài nguyên phù hợp. Đây không phải cây quan hệ sở hữu đối tượng.
+
+Sau khi admission, job integration cho phép job tiếp tục; scheduler
+vẫn gán từng Pod vào node. Kueue phối hợp với các thành phần sẵn có,
+không thay thế vai trò kube-scheduler.”
+Thao tác: chỉ ba khối phía trên, rồi mũi tên xuống ResourceFlavor.
+
+SLIDE 9 — QUOTA, PRIORITY, PREEMPTION VÀ FAIR SHARING (10:00–12:00 | 2 phút)
+“Admission là bước cho phép workload bắt đầu khi đáp ứng các điều kiện.
+Kueue xem xét quota cho nhu cầu của workload, flavor phù hợp và các
+AdmissionChecks nếu có. Khi bật Topology-Aware Scheduling, placement
+cũng được xét trong admission; phần 2 sẽ giải thích sâu hơn.
+
+Trong ví dụ bên phải, ClusterQueue có quota 64 GPU, đã dùng 16 nên
+còn 48. Job A cần 64 GPU thì chưa vừa quota còn lại; Job B cần 32 GPU
+thì vừa. Với BestEffortFIFO, cùng priority và các điều kiện khác đạt,
+Job B có thể được admission trước. Nếu dùng StrictFIFO hoặc chính
+sách khác, hành vi có thể khác; không phải lúc nào job nhỏ cũng đi trước.
+
+Priority ảnh hưởng thứ tự workload được xét. WorkloadPriorityClass
+cho phép đặt ưu tiên workload độc lập với ưu tiên Pod. Preemption là
+thu hồi tài nguyên của workload khác theo chính sách đã cấu hình;
+không phải cứ priority cao là luôn được chạy ngay.
+
+Fair Sharing và Cohort hỗ trợ chia sẻ giữa các nhóm. Trong mô hình
+chia sẻ giữa ClusterQueues, trọng số và mức dùng tài nguyên ảnh hưởng
+chính sách công bằng; Cohort cho phép mượn quota dư trong các giới hạn
+đã cấu hình. Fair Sharing không đồng nghĩa chia GPU bằng nhau mọi lúc.
+Kueue cũng có Admission Fair Sharing giữa LocalQueues dựa trên lịch
+sử sử dụng; đó là cơ chế riêng cần xem cấu hình và phiên bản.
+
+Cuối cùng, quota Kueue là hạn mức logic. Đủ quota không đồng nghĩa đã
+có đủ GPU vật lý thích hợp và chỗ đặt Pod.”
+
+SLIDE 10 — LIFECYCLE VÀ KẾT NỐI GANG (12:00–14:00 | 2 phút)
+“Tổng hợp lại, vòng đời rút gọn là Submit, Queue, Admission, Scheduling,
+Execution. Người dùng tạo job. Job integration tạo hoặc quản lý Workload
+để nó chờ admission. Kueue giữ quota và hoàn tất các điều kiện admission;
+job được cho phép tiếp tục. Các Pod được tạo hoặc bỏ gating tùy kiểu
+integration, scheduler gán chúng vào node, rồi runtime huấn luyện.
+
+Với job cố định, lớp đầu tiên là giữ quota cho đủ các PodSets thay vì
+admit một phần. Partial Admission cho workload hỗ trợ co giãn là trường
+hợp riêng; không dùng giả định đó cho ví dụ 64 worker của chúng ta.
+
+Nếu bật waitForPodsReady, Kueue theo dõi readiness của cả workload.
+Nếu chưa đủ Pod Ready khi hết timeout, workload bị evict, trả quota
+và xếp hàng lại theo cấu hình. Việc này giới hạn thời gian giữ tài nguyên
+của một workload bị kẹt; không khiến mọi Pod bind nguyên tử. Có thể
+cấu hình blockAdmission để hạn chế admission tiếp trong khi job trước
+chưa Ready; cần cân nhắc tác động đến mức song song.
+
+Quay lại 64/60: nếu quota còn lại cũng chỉ là 60 thì job 64 GPU tiếp tục
+chờ quota. Nếu quota cho phép 64 nhưng vật lý chỉ có 60, quota admission
+đơn thuần vẫn có thể cho qua và Pod có thể Pending. Khi đó cần thêm
+capacity/placement checks và cơ chế readiness thích hợp. Ready cũng
+không tự chứng minh một bước training đã chạy thành công.
+
+Thông điệp của phần 1 là: khi các worker phụ thuộc nhau, hãy xét yêu cầu
+của cả workload thay vì chỉ nhìn các Pod độc lập. Đến đây còn câu hỏi
+tiếp theo: ngay cả khi đủ GPU, đặt chúng ở đâu để giao tiếp hiệu quả?
+Em xin chuyển sang phần 2 về topology-aware scheduling.”
+
+NGUỒN TRA CỨU
+Đường dẫn chính thức nằm trong footer từng slide và README.txt.
+Các con số 64/60, 64/16/48/32 và sơ đồ node là ví dụ minh họa,
+không phải số đo benchmark hoặc cấu hình cluster thực tế.

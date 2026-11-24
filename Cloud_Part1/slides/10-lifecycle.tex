@@ -1,0 +1,47 @@
+% Slide 10 -- Workload Lifecycle; Part 1 message banner removed as requested.
+\begin{frame}[t]{Vòng đời Workload và phối hợp Kueue với Gang Scheduling}
+\begin{canvas}
+% Phase brackets
+\draw[BK!45,line width=.8pt] (0,5.98)--(0,6.14)--(8.55,6.14)--(8.55,5.98);
+\node[label,text=BK,fill=white,inner sep=3pt,font=\fontsize{9}{11}\selectfont\bfseries] at (4.28,6.14){Job integration + Kueue};
+\draw[Teal!55,line width=.8pt] (9.0,5.98)--(9.0,6.14)--(14.55,6.14)--(14.55,5.98);
+\node[label,text=Teal,fill=white,inner sep=3pt,font=\fontsize{9}{11}\selectfont\bfseries] at (11.78,6.14){Kubernetes + Runtime};
+
+% 5 lifecycle stages
+\foreach \x/\n/\title/\desc in {
+ 0/1/Submit/Tạo Job,
+ 3.0/2/Queue/Chờ quota,
+ 6.0/3/Admission/Giữ quota,
+ 9.0/4/Scheduling/Gán node,
+ 12.0/5/Execution/Training
+}{
+ \node[smallbox,fill=BK!4,text width=2.05cm,align=center,minimum height=1.25cm] (p\n) at (\x+1.275,4.95){\textbf{\title}\\[.08cm]{\fontsize{8.8}{10.5}\selectfont\textcolor{Muted}{\desc}}};
+}
+\foreach \i/\j in {1/2,2/3,3/4,4/5}{\draw[arr] (p\i.east)--(p\j.west);}
+
+% Orthogonal Amber timeout feedback loop
+\draw[arr,draw=Amber,line width=1.05pt] (p4.south) -- ++(0,-.30) -| (p2.south);
+\node[label,text=Amber,font=\fontsize{8.5}{10}\selectfont\bfseries,anchor=north] at (7.28,4.0){Pods chưa Ready khi hết timeout (\texttt{waitForPodsReady}): evict, trả quota, xếp hàng lại};
+
+% Two complementary summary boxes (cleanly above closingbanner)
+\node[smallbox,text width=6.65cm,minimum height=1.55cm,anchor=north west] (protection) at (0,3.42){%
+ \textcolor{BK}{\textbf{Phối hợp hai lớp bảo vệ}}\\[.08cm]
+ \fontsize{8.6}{11}\selectfont
+ $\bullet$\quad Giữ quota đủ PodSets trước admission (All-or-Nothing).\\
+ $\bullet$\quad \texttt{waitForPodsReady}: tránh giữ quota khi Pod \texttt{Pending}.};
+
+\node[smallbox,fill=Teal!4,draw=Teal!35,text width=6.65cm,minimum height=1.55cm,anchor=north west] (nextpart) at (7.4,3.42){%
+ \textcolor{Teal}{\textbf{Bước tiếp theo - Phần 2}}\\[.08cm]
+ \fontsize{8.6}{11}\selectfont
+ $\bullet$\quad Đủ GPU và Pod Ready chưa tối ưu hóa giao tiếp.\\
+ $\bullet$\quad Vị trí vật lý quyết định hiệu năng (\textbf{Topology-Aware}).};
+
+\auditnode{cards}{p1}
+\auditnode{cards}{p2}
+\auditnode{cards}{p3}
+\auditnode{cards}{p4}
+\auditnode{cards}{p5}
+\auditnode{cards}{protection}
+\auditnode{cards}{nextpart}
+\end{canvas}
+\end{frame}

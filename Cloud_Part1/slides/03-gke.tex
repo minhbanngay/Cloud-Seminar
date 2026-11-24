@@ -1,0 +1,45 @@
+% Slide 3 -- Separated cards and horizontal arrows with common centre lines.
+\begin{frame}[t]{AI workloads và kiến trúc GPU cluster trên GKE}
+\begin{canvas}
+\node[chip,anchor=north west,inner ysep=2.5pt,font=\fontsize{8.2}{10}\selectfont\bfseries] at (0,6.28){BỐI CẢNH\quad /\quad GCP};
+
+\node[smallbox,fill=BK!4,text width=3.35cm,minimum height=1.55cm,inner sep=6pt,align=left] (job) at (1.89,4.95){%
+ \textbf{AI workloads}\\[.05cm]
+ {\fontsize{8.8}{10.8}\selectfont Training · Fine-tuning\\Inference}};
+\node[smallbox,text width=3.35cm,minimum height=1.55cm,inner sep=6pt] (data) at (1.89,3.20){%
+ \textbf{Cloud Storage}\\[.05cm]
+ {\fontsize{8.8}{10.8}\selectfont Dataset · Checkpoints\\Mô hình}};
+\node[smallbox,fill=Teal!4,draw=Teal!35,text width=3.35cm,minimum height=1.12cm,inner sep=6pt] (alloc) at (1.89,1.70){%
+ \textcolor{Teal}{\textbf{GPU nguyên}}\\[.05cm]
+ {\fontsize{8.2}{10.2}\selectfont\texttt{nvidia.com/gpu: 1..8}}};
+
+\node[box,fill=BK!3,text width=9.05cm,minimum height=5.02cm,anchor=north west] at (4.82,6.12){};
+\node[head,anchor=north west] at (5.08,5.97){Google Kubernetes Engine (GKE)};
+\node[smallbox,fill=white,text width=8.25cm,minimum height=.78cm,inner ysep=5pt] (control) at (9.455,4.95){%
+ \textbf{Control plane}\quad {\fontsize{8.5}{10}\selectfont API server · controllers · \texttt{kube-scheduler}}};
+
+\node[scopebox,draw=Teal!45,fill=white,minimum width=9.0cm,minimum height=2.83cm,anchor=north west] (pool) at (5.06,4.20){};
+\foreach \x/\n in {5.27/1,8.20/2,11.13/3}{
+ \node[smallbox,fill=BK!2,text width=2.12cm,minimum height=1.55cm,anchor=north west,inner sep=6pt] (node\n) at (\x,3.93){};
+ \node[anchor=north west,font=\fontsize{9.5}{11}\selectfont\bfseries,text=Ink] at (\x+.12,3.77){GPU node \n};
+ \node[anchor=north west,font=\fontsize{8.2}{10}\selectfont,text=Muted] at (\x+.12,3.28){Worker Pods};
+ \node[gpuchip,font=\fontsize{7}{8.5}\selectfont\bfseries,inner xsep=2pt,anchor=south west] at (\x+.16,2.45){GPU 0};
+ \node[gpuchip,font=\fontsize{7}{8.5}\selectfont\bfseries,inner xsep=2pt,anchor=south east] at (\x+2.36,2.45){GPU 1};
+ \draw[arr] (control.south -| node\n.north)--(node\n.north);
+}
+\auditnode{nodes}{node1}
+\auditnode{nodes}{node2}
+\auditnode{nodes}{node3}
+\node[anchor=south west,text=Teal,font=\fontsize{8.2}{10}\selectfont\bfseries] at (5.23,1.87){GPU Node Pool};
+\node[anchor=south west,text=Muted,font=\fontsize{7.9}{9.5}\selectfont] at (5.23,1.48){NVIDIA Device Plugin quản lý \texttt{nvidia.com/gpu}};
+
+% Common centre lines keep both input arrows perfectly horizontal.
+\draw[arr] (job.east)--(control.west);
+\draw[softarr] (data.east)--(pool.west |- data.east);
+\keynote{Lưu ý}{Xét điều kiện khởi chạy của cả workload trước khi giữ GPU.}
+\auditnode{cards}{job}
+\auditnode{cards}{data}
+\auditnode{cards}{alloc}
+\auditnode{cards}{control}
+\end{canvas}
+\end{frame}

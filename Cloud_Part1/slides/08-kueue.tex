@@ -1,0 +1,58 @@
+% Slide 8 -- Kueue Architecture (1-line subtitle, equal-height boxes, crisp straight arrows).
+\begin{frame}[t]{Kiến trúc Kueue: Hàng đợi và Quota ở cấp Workload}
+\begin{canvas}
+\node[label,text=Ink,anchor=north west,text width=14.5cm,font=\fontsize{9.5}{11.5}\selectfont] at (0,6.28){Hệ thống Kubernetes-native điều phối hàng đợi, quota và admission cho các AI workloads.};
+
+% Namespace Scope dashed container (left)
+\node[scopebox,draw=BK!40,fill=BK!2,minimum width=6.75cm,minimum height=3.84cm,anchor=north west] (nsbox) at (0,5.72){};
+\node[anchor=north west,text=BK,font=\fontsize{8.2}{10}\selectfont\bfseries] at (.18,5.62){NAMESPACE SCOPE \normalfont\textcolor{Muted}{(Team / Tenant)}};
+
+\node[smallbox,fill=white,text width=2.55cm,minimum height=1.68cm,inner sep=6pt] (workload) at (1.74,4.24){%
+ \textcolor{BK}{\textbf{Workload}}\\[.06cm]
+ {\fontsize{8.2}{10.2}\selectfont Yêu cầu PodSets\\Vd: 64 worker GPU}};
+
+\node[smallbox,fill=white,text width=2.55cm,minimum height=1.68cm,inner sep=6pt] (local) at (5.19,4.24){%
+ \textcolor{BK}{\textbf{LocalQueue}}\\[.06cm]
+ {\fontsize{8.2}{10.2}\selectfont Trong namespace\\Vd: \texttt{team-a/train}}};
+
+\node[label,text width=6.1cm,anchor=north west,font=\fontsize{8.4}{10.5}\selectfont] at (.25,3.12){Job tham chiếu \texttt{LocalQueue}; Kueue tạo và quản lý \texttt{Workload} tương ứng.};
+
+% Cluster Scope dashed container (right)
+\node[scopebox,draw=Teal!50,fill=Teal!2,minimum width=7.25cm,minimum height=3.84cm,anchor=north west] (clbox) at (7.3,5.72){};
+\node[anchor=north west,text=Teal,font=\fontsize{8.2}{10}\selectfont\bfseries] at (7.48,5.62){CLUSTER SCOPE \normalfont\textcolor{Muted}{(Platform Admin)}};
+
+\node[smallbox,fill=white,draw=Teal!45,text width=3.15cm,minimum height=1.68cm,inner sep=6pt] (cluster) at (9.34,4.24){%
+ \textcolor{Teal}{\textbf{ClusterQueue}}\\[.06cm]
+ {\fontsize{8.2}{10.2}\selectfont Quota \& chính sách\\Vd: 64 GPU A100}};
+
+\node[smallbox,fill=Amber!5,draw=Amber!45,text width=2.35cm,minimum height=1.68cm,inner sep=6pt] (cohort) at (12.97,4.24){%
+ \textcolor{Amber}{\textbf{Cohort}}\\[.06cm]
+ {\fontsize{8.2}{10.2}\selectfont Chia sẻ, mượn\\quota nhàn rỗi}};
+
+\node[smallbox,fill=white,draw=Teal!45,text width=6.42cm,minimum height=1.02cm,anchor=north west,inner sep=6pt] (flavor) at (7.55,3.10){};
+\node[anchor=north west,text=Teal,font=\fontsize{9.5}{11.5}\selectfont\bfseries] at (7.72,2.97){ResourceFlavor};
+\node[anchor=north west,text=Ink,font=\fontsize{8.2}{10.2}\selectfont] at (7.72,2.55){\texttt{nodeLabels} / \texttt{taints}: A100, H100, Spot.};
+
+% Strictly horizontal and vertical arrows
+\draw[arr] (workload.east)--(local.west);
+\draw[arr] (local.east)--(cluster.west);
+\draw[arr,draw=Amber,{Latex[length=1.8mm]}-{Latex[length=1.8mm]}] (cluster.east)--(cohort.west);
+\draw[arr,draw=Teal] (cluster.south)--(cluster.south |- flavor.north);
+
+% Integrated 2-column role split at the bottom
+\node[smallbox,fill=BK!4,draw=BK!25,text width=6.7cm,minimum height=1.5cm,anchor=north west] (kueuerole) at (0,1.65){%
+ \textcolor{BK}{\textbf{Vai trò của Kueue}}\\[.06cm]
+ {\fontsize{8.8}{11}\selectfont Quản lý hàng đợi, quota và admission\\cho cả workload.}};
+
+\node[smallbox,fill=Teal!4,draw=Teal!30,text width=6.7cm,minimum height=1.5cm,anchor=north west] (schedulerrole) at (7.35,1.65){%
+ \textcolor{Teal}{\textbf{Vai trò của \texttt{kube-scheduler}}}\\[.06cm]
+ {\fontsize{8.8}{11}\selectfont Lọc, chấm điểm và bind từng Pod\\lên GPU node sau admission.}};
+\auditnode{cards}{workload}
+\auditnode{cards}{local}
+\auditnode{cards}{cluster}
+\auditnode{cards}{cohort}
+\auditnode{cards}{flavor}
+\auditnode{cards}{kueuerole}
+\auditnode{cards}{schedulerrole}
+\end{canvas}
+\end{frame}

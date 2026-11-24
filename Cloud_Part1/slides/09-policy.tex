@@ -1,0 +1,47 @@
+% Slide 9 -- Fixed separated frames for admission and sharing policies.
+\begin{frame}[t]{Admission Control, Priority, Preemption và Fair Sharing}
+\begin{canvas}
+\node[smallbox,fill=BK!4,text width=5.65cm,minimum height=2.85cm,anchor=north west] (admission) at (0,6.22){};
+\node[anchor=north west,text=BK,font=\fontsize{10.5}{12.5}\selectfont\bfseries] at (.2,6.04){Điều kiện Admission Control};
+\node[anchor=north west,text=Ink,text width=5.6cm,font=\fontsize{9}{12}\selectfont] at (.2,5.45){%
+ $\bullet$\quad Đủ \textbf{quota} cho toàn bộ PodSets.\\
+ $\bullet$\quad \textbf{ResourceFlavor} phù hợp.\\
+ $\bullet$\quad \textbf{AdmissionChecks} đạt (nếu có).};
+\node[anchor=north west,text=Muted,text width=5.6cm,font=\fontsize{8.2}{10}\selectfont] at (.2,4.03){Quota logic $\neq$ GPU vật lý khả dụng.};
+
+\node[head,anchor=north west,font=\fontsize{11}{13}\selectfont\bfseries] at (6.5,6.22){Ví dụ: ClusterQueue có quota 64 GPU};
+\fill[BK!65,rounded corners=2pt] (6.5,5.28) rectangle (8.45,5.68);
+\fill[Teal!70,rounded corners=2pt] (8.55,5.28) rectangle (14.5,5.68);
+\node[anchor=center,text=white,font=\fontsize{8.2}{10}\selectfont\bfseries] at (7.48,5.48){16 dùng};
+\node[anchor=center,text=white,font=\fontsize{8.2}{10}\selectfont\bfseries] at (11.52,5.48){48 GPU quota còn lại};
+\node[smallbox,fill=Red!5,draw=Red!35,text width=7.55cm,minimum height=.52cm,anchor=north west,inner ysep=2pt,font=\fontsize{8.8}{10.5}\selectfont] (joba) at (6.5,5.08){%
+ \textcolor{Red}{\textbf{Job A (64 GPU)}}\quad $\rightarrow$\quad Vượt quota còn lại, chờ};
+\node[smallbox,fill=Teal!5,draw=Teal!35,text width=7.55cm,minimum height=.52cm,anchor=north west,inner ysep=2pt,font=\fontsize{8.8}{10.5}\selectfont] (jobb) at (6.5,4.42){%
+ \textcolor{Teal}{\textbf{Job B (32 GPU)}}\quad $\rightarrow$\quad Đủ quota, sẵn sàng admit};
+\node[label,anchor=north west,font=\fontsize{8.4}{10.2}\selectfont,text width=8cm] at (6.5,3.68){\texttt{BestEffortFIFO}, cùng priority: có thể xét Job B trước.};
+
+% Two equal-height frames; content cannot enlarge or overlap their neighbours.
+\node[smallbox,fill=white,draw=BK!30,text width=6.55cm,minimum height=2.78cm,anchor=north west] (priority) at (0,3.02){};
+\node[anchor=north west,text=BK,font=\fontsize{10.5}{12.5}\selectfont\bfseries] at (.2,2.83){Priority \& Preemption};
+\node[anchor=north west,text=Ink,text width=6.3cm,font=\fontsize{8.8}{10.5}\selectfont] at (.2,2.30){%
+ \texttt{WorkloadPriorityClass} đặt ưu tiên,\\
+ độc lập với ưu tiên Pod.\\
+ \textbf{Preemption}: thu hồi quota theo chính sách.\\
+ Trong ClusterQueue hoặc thu hồi\\
+ quota đã cho Cohort mượn.};
+
+\node[smallbox,fill=white,draw=Teal!35,text width=6.55cm,minimum height=2.78cm,anchor=north west] (fairness) at (7.48,3.02){};
+\node[anchor=north west,text=Teal,font=\fontsize{10.5}{12.5}\selectfont\bfseries] at (7.68,2.83){Fair Sharing \& Cohort};
+\node[anchor=north west,text=Ink,text width=6.3cm,font=\fontsize{8.8}{10.5}\selectfont] at (7.68,2.30){%
+ Các \texttt{ClusterQueue} trong cùng \texttt{Cohort}\\
+ chia sẻ và mượn quota nhàn rỗi.\\
+ \textbf{Fair Sharing} xét trọng số (\texttt{weight})\\
+ và mức sử dụng để hạn chế độc chiếm\\
+ tài nguyên giữa các nhóm.};
+\auditnode{cards}{admission}
+\auditnode{cards}{joba}
+\auditnode{cards}{jobb}
+\auditnode{cards}{priority}
+\auditnode{cards}{fairness}
+\end{canvas}
+\end{frame}

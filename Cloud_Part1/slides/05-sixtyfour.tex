@@ -1,0 +1,45 @@
+% Slide 5 -- 64/60 GPU problem (clean spacing above 64/60, non-overlapping right cards).
+\begin{frame}[t]{Bài toán minh họa: 64 GPU yêu cầu, 60 GPU khả dụng}
+\begin{canvas}
+% Assumption chip cleanly separated from the large numbers below
+\node[chip,fill=BK!6,text=Muted,anchor=north west,inner xsep=8pt,inner ysep=3.5pt,font=\fontsize{9.5}{11}\selectfont] at (0,6.28){Giả định: 64 worker cố định\quad ·\quad 1 GPU/Pod\quad ·\quad training đồng bộ\quad ·\quad không co giãn};
+
+% Big numbers with clear vertical spacing below the assumption line
+\node[big,anchor=west] at (.15,5.12){64};
+\node[head,anchor=west] at (1.55,5.12){GPU yêu cầu};
+\node[big,text=Amber,anchor=west] at (6.45,5.12){60};
+\node[head,text=Amber,anchor=west] at (7.85,5.12){GPU đang trống};
+
+% 8x8 GPU matrix: 60 allocated (Teal) + 4 missing (Red dashed)
+\foreach \r in {0,...,7}{\foreach \c in {0,...,7}{
+ \pgfmathtruncatemacro{\k}{\r*8+\c}
+ \ifnum\k<60
+ \filldraw[fill=Teal!75,draw=Teal!85,rounded corners=1.2pt] (.2+\c*.63,4.30-\r*.43) rectangle ++(.49,-.30);
+ \else
+ \draw[draw=Red,dashed,line width=.95pt,rounded corners=1.2pt] (.2+\c*.63,4.30-\r*.43) rectangle ++(.49,-.30);
+ \fi
+}}
+\fill[Teal!75,rounded corners=1pt] (.2,.55) rectangle (.48,.77);
+\node[label,text=Teal,anchor=west,font=\fontsize{8.8}{10.5}\selectfont\bfseries] at (.56,.66){60 đã giữ GPU};
+\draw[draw=Red,dashed,line width=.9pt,rounded corners=1pt] (3.35,.55) rectangle (3.63,.77);
+\node[label,text=Red,anchor=west,font=\fontsize{8.8}{10.5}\selectfont\bfseries] at (3.72,.66){4 còn thiếu};
+
+% Fixed outer frames; text is positioned independently so wrapping cannot push frames together.
+\node[smallbox,fill=BK!3,text width=7.55cm,minimum height=1.90cm,anchor=north west] (effects) at (6.45,4.34){};
+\node[anchor=north west,text=BK,text width=7.5cm,font=\fontsize{10.2}{12}\selectfont\bfseries] at (6.65,4.15){Hệ quả khi lập lịch từng Pod độc lập};
+\node[anchor=north west,text=Ink,text width=7.5cm,font=\fontsize{9.2}{11.2}\selectfont] at (6.65,3.70){%
+ $\bullet$\quad 60 worker giữ GPU và chờ đồng bộ.\\
+ $\bullet$\quad 4 worker vẫn ở trạng thái \texttt{Pending}.\\
+ $\bullet$\quad Cả job chưa bắt đầu được bước học.};
+
+\node[smallbox,fill=Red!5,draw=Red!40,text width=7.55cm,minimum height=1.0cm,anchor=north west] (progress) at (6.45,2.20){};
+\node[anchor=north west,text=Red,text width=7.5cm,font=\fontsize{9.8}{11.5}\selectfont\bfseries] at (6.65,2.03){60/64 GPU được cấp $\neq$ 93,75\% tiến độ};
+\node[anchor=north west,text=Ink,text width=7.5cm,font=\fontsize{8.7}{10.5}\selectfont] at (6.65,1.68){Chưa có bước học hữu ích khi thiếu worker.};
+
+\node[smallbox,fill=Teal!5,draw=Teal!35,text width=7.55cm,minimum height=.75cm,anchor=north west] (solution) at (6.45,.97){};
+\node[anchor=west,text=Ink,text width=7.5cm,font=\fontsize{9}{11}\selectfont] at (6.65,.595){\textcolor{Teal}{\textbf{Giải pháp:}} Chờ đủ GPU để khởi chạy cả workload.};
+\auditnode{cards}{effects}
+\auditnode{cards}{progress}
+\auditnode{cards}{solution}
+\end{canvas}
+\end{frame}

@@ -1,0 +1,59 @@
+Người 1- Problem, Kubernetes Scheduling, Kueue & Gang Scheduling
+14 phút · Khoảng 9–10 slide
+Phần A- Problem & Motivation (4 phút)
+Tổng quan AI workloads trên Google Cloud và kiến trúc GPU cluster trên GKE.
+Sự khác biệt giữa các ứng dụng Cloud thông thường và Distributed AI Training.
+Những thách thức trong quản lý GPU: tài nguyên đắt đỏ, phân mảnh, thời gian chờ và mức sử dụng chưa hiệu quả.
+Giới thiệu bài toán training cần 64 GPU nhưng chỉ có 60 GPU khả dụng.
+Phần B- Kubernetes Scheduling & Gang Scheduling (4 phút)
+Cơ chế hoạt động của Kubernetes Default Scheduler.
+Pod-level Scheduling và Workload-level Scheduling.
+Partial scheduling và vấn đề các worker phải chờ nhau.
+Gang Scheduling: nguyên lý, lợi ích và các đánh đổi.
+Phần C- Kueue (6 phút)
+Kueue là gì và vai trò trong GKE.
+Kiến trúc Kueue: Workload, LocalQueue, ClusterQueue, ResourceFlavor.
+Admission Control, Resource Quota, Priority và Fair Sharing.
+Workload Lifecycle: Submit → Queue → Admission → Scheduling → Execution.
+Cách phối hợp Kueue với cơ chế gang scheduling.
+Thông điệp kết thúc: Không nên chỉ xét từng Pod độc lập khi lập lịch những AI workloads có yêu cầu tài nguyên đồng thời.
+
+Người 2- Distributed Training & Topology-Aware Scheduling
+10 phút · Khoảng 6–7 slide
+Phần A- Distributed Training Communication (4 phút)
+Data Parallelism và Model Parallelism.
+Vai trò của các worker trong Distributed Training.
+Gradient Synchronization và AllReduce.
+Tại sao tốc độ giao tiếp giữa các GPU ảnh hưởng đến thời gian huấn luyện?
+Phần B- GPU Cluster Topology (3 phút)
+Kiến trúc GPU Node, Rack và Cluster.
+Các kết nối PCIe, NVLink/NVSwitch, Ethernet/InfiniBand.
+Intra-node và Inter-node Communication.
+Bandwidth, latency và communication overhead.
+Phần C - Topology-Aware Scheduling (3 phút)
+Khái niệm Topology-Aware Scheduling.
+Resource Availability so với Resource Locality.
+Topology-Aware Scheduling trong Kueue.
+So sánh hai trường hợp placement: worker gần nhau và worker phân tán.
+Những lợi ích và giới hạn của topology-aware placement.
+
+Thông điệp kết thúc: Có đủ GPU chưa chắc đã đủ; vị trí của các GPU cũng quyết định hiệu quả huấn luyện phân tán.
+Người 3 - GPU Sharing & Resource Optimization
+9 phút · Khoảng 6–7 slide, chưa tính demo
+Phần A- GPU Underutilization (2 phút)
+Vì sao nhiều AI workloads không tận dụng hết GPU?
+Vấn đề khi cấp nguyên một GPU cho một workload nhỏ.
+Các mục tiêu tối ưu: Utilization, Performance, Isolation và Cost.
+Phần B- GPU Sharing Techniques (5 phút)
+Time-Slicing: nguyên lý và đặc điểm.
+NVIDIA MPS: chạy nhiều CUDA processes đồng thời.
+MIG: phân chia GPU thành các hardware instances.
+So sánh Time-Slicing, MPS và MIG.
+Workload phù hợp với từng kỹ thuật.
+Phần C- Putting Everything Together (2 phút)
+9. Tổng hợp các kỹ thuật quản lý và lập lịch GPU
+WHEN- Kueue & Gang Scheduling: Tổng kết cách quản lý hàng đợi, quota và phối hợp lập lịch các distributed AI workloads.
+WHERE- Topology-Aware Scheduling: Tổng kết cách lựa chọn vị trí đặt GPU/worker dựa trên topology nhằm tối ưu giao tiếp.
+HOW- GPU Sharing: Tổng kết cách sử dụng Time-Slicing, MPS và MIG để tăng hiệu suất sử dụng tài nguyên GPU.
+10. Giới thiệu demo tổng hợp: (Gợi ý) Demo - AI Workload Scheduling with Kueue on Kubernetes
+Mục tiêu: Minh họa cách Kueue quản lý nhiều AI workloads, kiểm soát quota và phối hợp placement theo topology.

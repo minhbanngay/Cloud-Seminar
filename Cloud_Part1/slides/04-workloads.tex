@@ -1,0 +1,44 @@
+% Slide 4 -- Stateless web vs Distributed AI Training & GPU pressures.
+\begin{frame}[t]{Đặc thù Distributed AI Training và thách thức quản lý GPU}
+\begin{canvas}
+% Top comparison: Stateless Web vs Synchronous Distributed Training
+\node[box,fill=BK!3,text width=6.4cm,minimum height=2.32cm,anchor=north west] at (0,6.24){};
+\node[box,fill=Teal!4,draw=Teal!30,text width=6.4cm,minimum height=2.32cm,anchor=north west] at (7.6,6.24){};
+
+\node[head,anchor=north west] at (.25,6.1){Dịch vụ web stateless điển hình};
+\node[label,text width=6.05cm,anchor=north west,font=\fontsize{8.8}{11}\selectfont] at (.25,5.58){Mỗi replica xử lý request độc lập.\\Thiếu một phần replica vẫn phục vụ được.};
+
+\node[head,text=Teal,anchor=north west] at (7.85,6.1){Training phân tán đồng bộ};
+\node[label,text width=6.05cm,anchor=north west,font=\fontsize{8.8}{11}\selectfont] at (7.85,5.58){Các worker đồng bộ theo từng bước học.\\Thiếu một worker: cả nhóm phải chờ.};
+
+\foreach \x/\t in {.35/Pod 1,2.55/Pod 2,4.75/Pod 3}{
+ \node[smallbox,text width=1.45cm,align=center,minimum height=.48cm,anchor=west,inner ysep=4pt] at (\x,4.36){\t};
+}
+\foreach \x/\t [count=\i] in {7.95/W1,10.15/W2,12.35/W3}{
+ \node[smallbox,draw=Teal!45,text width=1.35cm,align=center,minimum height=.48cm,anchor=west,inner ysep=4pt] (w\i) at (\x,4.36){\t};
+}
+\draw[arr,draw=Teal,{Latex[length=1.8mm]}-{Latex[length=1.8mm]}] (w1.east)--(w2.west);
+\draw[arr,draw=Teal,{Latex[length=1.8mm]}-{Latex[length=1.8mm]}] (w2.east)--(w3.west);
+
+% Middle: 4 pressures with colored top accent strips (cleanly above accentbar)
+\node[head,anchor=north west,inner sep=0] (pressureheading) at (0,3.68){Bốn áp lực khi quản lý tài nguyên GPU};
+
+\foreach \x/\col/\ttl/\body [count=\i] in {
+ 0/Red/Chi phí cao/{GPU cao cấp đắt đỏ; giữ GPU không tính toán gây lãng phí.},
+ 3.78/Amber/Phân mảnh/{GPU trống rải rác các node; Pod lớn không vừa.},
+ 7.56/BK/Thời gian chờ/{Nhiều nhóm tranh chấp; thiếu hàng đợi công bằng.},
+ 11.34/Teal/Utilization thấp/{Tác vụ nhỏ dùng cả GPU dễ dư thừa (Phần 3).}
+}{
+ \node[smallbox,text width=2.82cm,minimum height=2cm,anchor=north west,inner sep=7pt] (pressure\i) at (\x,2.96){};
+ \fill[\col] (\x,2.96) rectangle (\x+3.32,2.88);
+ \node[anchor=north west,text=\col,text width=3cm,font=\fontsize{9.5}{11.5}\selectfont\bfseries] at (\x+.14,2.72){\ttl};
+ \node[anchor=north west,text=Ink,text width=2.99cm,font=\fontsize{8.4}{10.5}\selectfont] at (\x+.14,2.18){\body};
+}
+\auditnode{pressures}{pressureheading}
+\auditnode{pressures}{pressure1}
+\auditnode{pressures}{pressure2}
+\auditnode{pressures}{pressure3}
+\auditnode{pressures}{pressure4}
+\accentbar{Teal}{Hệ quả}{Cả workload cần đủ worker để tạo tiến độ.}
+\end{canvas}
+\end{frame}

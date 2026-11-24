@@ -1,0 +1,41 @@
+# Rendered reviews, validation scripts/reports and test artifacts
+**/review/
+**/reviews/
+**/test/
+**/tests/
+/Cloud_Part1/review_layout.py
+/Cloud_Part1/REVIEW.txt
+
+# Build directories and temporary caches
+**/build/
+**/tmp/
+**/.tools/
+**/__pycache__/
+*.py[cod]
+
+# Generated LaTeX files
+*.aux
+*.bbl
+*.blg
+*-blx.bib
+*.fdb_latexmk
+*.fls
+*.log
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+
+# Local archives/backups and duplicate directly compiled PDF
+*.zip
+/Cloud_Part1/main.pdf
+
+# Original UART reference; presentation assets are copied into Cloud_Part1/assets
+/HCMUT_Slide__3_/
+
+# Operating system metadata
+.DS_Store
+Thumbs.db

@@ -1,0 +1,41 @@
+% Slide 6 -- Kubernetes Default Scheduler (declarative statements, zero overlaps).
+\begin{frame}[t]{Cơ chế lập lịch của Kubernetes Default Scheduler}
+\begin{canvas}
+\node[chip,anchor=north west,inner ysep=2.5pt,font=\fontsize{8.5}{10}\selectfont\bfseries] at (0,6.25){LUỒNG RÚT GỌN\quad /\quad KUBE-SCHEDULER};
+
+\foreach \x/\n/\title/\desc in {
+ 0/1/Pending Pod/Chưa có node,
+ 3.82/2/Filter/Lọc node phù hợp,
+ 7.64/3/Score/Xếp hạng node,
+ 11.46/4/Bind/Gán vào node
+}{
+ \node[smallbox,fill=BK!4,text width=2.6cm,minimum height=1.25cm,align=center] (s\n) at (\x+1.55,4.95){\textbf{\title}\\[.08cm]{\fontsize{8.8}{10.5}\selectfont\textcolor{Muted}{\desc}}};
+}
+\draw[arr] (s1.east)--(s2.west);
+\draw[arr] (s2.east)--(s3.west);
+\draw[arr] (s3.east)--(s4.west);
+\auditnode{stages}{s1}
+\auditnode{stages}{s2}
+\auditnode{stages}{s3}
+\auditnode{stages}{s4}
+
+\node[label,anchor=north west,text width=14.5cm,font=\fontsize{9}{11}\selectfont] at (0,4.12){Filter kiểm tra requests (\texttt{nvidia.com/gpu}, CPU, RAM), node selectors, affinity và taints/tolerations.};
+
+% Two-level comparison: 1-line headers + 1-line bullets, well above accentbar
+\node[smallbox,text width=6.5cm,minimum height=1.92cm,anchor=north west] at (0,3.55){%
+ \textcolor{BK}{\textbf{\fontsize{10.2}{12}\selectfont Pod-level (\texttt{kube-scheduler})}}\\[.12cm]
+ \fontsize{8.8}{12}\selectfont
+ $\bullet$\quad Chọn vị trí node cho từng Pod riêng lẻ.\\
+ $\bullet$\quad Các Pod được bind tuần tự, độc lập nhau.\\
+ $\bullet$\quad Không nhận thức phụ thuộc của cả nhóm.};
+
+\node[smallbox,fill=Teal!4,draw=Teal!35,text width=6.5cm,minimum height=1.92cm,anchor=north west] at (7.55,3.55){%
+ \textcolor{Teal}{\textbf{\fontsize{10.2}{12}\selectfont Workload-level (lớp điều phối)}}\\[.12cm]
+ \fontsize{8.8}{12}\selectfont
+ $\bullet$\quad Đánh giá tổng nhu cầu của nhóm worker.\\
+ $\bullet$\quad Quyết định thời điểm chạy hoặc chờ.\\
+ $\bullet$\quad Bổ sung cho scheduler, không thay thế.};
+
+\accentbar{BK}{Hạn chế cốt lõi}{Bind từng Pod chưa bảo đảm cả job đủ điều kiện chạy.}
+\end{canvas}
+\end{frame}

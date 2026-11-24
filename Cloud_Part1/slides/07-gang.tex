@@ -1,0 +1,39 @@
+% Slide 7 -- Gang Scheduling (1-line state boxes, crisp horizontal arrows).
+\begin{frame}[t]{Gang Scheduling: Lập lịch theo nhóm worker}
+\begin{canvas}
+\node[label,text=Ink,anchor=north west,text width=14.5cm,font=\fontsize{10}{12}\selectfont] at (0,6.25){Job cố định: chỉ khởi chạy cả nhóm khi đáp ứng đủ yêu cầu tài nguyên.};
+
+% Two-state visual comparison (both single-line, equal height -> straight horizontal arrows)
+\node[smallbox,fill=Amber!7,draw=Amber!40,text width=2.55cm,align=center,minimum height=1.05cm] (wait) at (1.525,5.20){\textcolor{Amber}{\textbf{60 / 64 GPU}}};
+\node[smallbox,text width=9.85cm,minimum height=1.05cm] (queue) at (9.325,5.20){};
+\node[anchor=north west,text=Ink,font=\fontsize{9.5}{11.5}\selectfont\bfseries] at (4.36,5.63){Giữ job trong hàng đợi};
+\node[anchor=north west,text=Muted,font=\fontsize{8.8}{10.5}\selectfont] at (4.36,5.21){Không cấp phát dở dang; tránh giữ GPU nhàn rỗi.};
+\draw[arr,draw=Amber] (wait.east)--(queue.west);
+
+\node[smallbox,fill=Teal!8,draw=Teal!40,text width=2.55cm,align=center,minimum height=1.05cm] (ready) at (1.525,3.85){\textcolor{Teal}{\textbf{64 / 64 GPU}}};
+\node[smallbox,fill=Teal!4,draw=Teal!35,text width=9.85cm,minimum height=1.05cm] (run) at (9.325,3.85){};
+\node[anchor=north west,text=Ink,font=\fontsize{9.5}{11.5}\selectfont\bfseries] at (4.36,4.28){Khởi chạy cả nhóm};
+\node[anchor=north west,text=Muted,font=\fontsize{8.8}{10.5}\selectfont] at (4.36,3.86){Đủ worker để thực hiện bước huấn luyện.};
+\draw[arr,draw=Teal] (ready.east)--(run.west);
+
+% Three structured cards with colored top accent strips
+\foreach \x/\col/\ttl/\body [count=\i] in {
+ 0/Teal/Lợi ích/{Giảm giữ GPU nhàn rỗi.\\Hạn chế deadlock giữa job.},
+ 5.05/Amber/Đánh đổi/{Job lớn chờ gom đủ GPU.\\Cần ưu tiên và chống đói.},
+ 10.1/BK/Giới hạn thực tế/{Đủ GPU chưa chắc đặt vừa.\\Cần kiểm tra placement.}
+}{
+ \node[smallbox,text width=3.95cm,minimum height=1.78cm,anchor=north west] (tradeoff\i) at (\x,3.02){%
+  \textcolor{\col}{\textbf{\ttl}}\\[.1cm]
+  {\fontsize{8.8}{11}\selectfont \body}};
+ \fill[\col] (\x,3.02) rectangle (\x+4.45,2.94);
+}
+\auditnode{cards}{wait}
+\auditnode{cards}{queue}
+\auditnode{cards}{ready}
+\auditnode{cards}{run}
+\auditnode{cards}{tradeoff1}
+\auditnode{cards}{tradeoff2}
+\auditnode{cards}{tradeoff3}
+\keynote{Cơ chế thực thi}{Cả nhóm cùng tạo tiến độ; các Pod có thể được bind lần lượt.}
+\end{canvas}
+\end{frame}
