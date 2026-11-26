@@ -14,7 +14,7 @@
  pTwo/label/.style={font=\small,align=center,text=BKTemplate},
  pTwo/note/.style={font=\small,align=center}
 }
-\newcommand{\PtwoSource}[1]{%
- \par\vspace{.08cm}{\fontsize{8.5}{10}\selectfont\color{BKTemplate}Nguồn: #1\par}}
+% Keep source metadata in TeX without displaying it on slides.
+\newcommand{\PtwoSource}[1]{}
 \newcommand{\PtwoPoint}[1]{%
  \begin{block}{}\centering #1\end{block}}
